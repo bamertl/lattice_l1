@@ -2,7 +2,7 @@
 
 
 ```bash
-
+sage -pip install tqdm
 sage sage_main.py
 ```
 
