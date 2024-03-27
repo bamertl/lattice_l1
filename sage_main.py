@@ -1,6 +1,5 @@
 from sage.all import *
-from src import my_module
-from lll import my_lll
+from src import my_lll
 import numpy as np
 from tqdm import tqdm
 

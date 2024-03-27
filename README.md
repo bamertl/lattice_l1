@@ -17,7 +17,6 @@ sage sage_main.py
 python tester.py
 ``` 
 
-
 ## Update Requirements
 ```bash
 pip freeze > requirements.txt
