@@ -1,15 +1,17 @@
-from src.construction_a import FiniteField, ConstructionA
-from src.lattice import Lattice
+from src.linear_code import RandomLinearCode
 
-dimension = 5
-prime = 13
-k = 5
-finite_field = FiniteField(dimension, prime)
-construction_a = ConstructionA(finite_field, 5, 4)
+n = 7
+q = 7
+k = 3
 
+random_code = RandomLinearCode(n, k, q)
 
-construction_a.linear_code.generate_all_codewords()
+print(random_code)
+print(f"Actual minimum distance: {random_code.calculate_exact_minimum_distance()}")
 
-lattice = Lattice(construction_a.lattice_bases)
-lattice.print_stats()
+## Generate random message with random_code.generate_randome_message and print it, encode it and print the encoded as well
+message = random_code.get_random_message()
+print(f"Message: {message}")
+encoded_message = random_code.encode(message)
+print(f"Encoded Message: {encoded_message}")
 
