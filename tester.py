@@ -1,7 +1,7 @@
 from src.linear_code import RandomLinearCode
 from src.construction_a import ConstructionA
-n = 7
-q = 7
+n = 10
+q = 6
 k = 3
 
 random_code = RandomLinearCode(n, k, q)

@@ -16,6 +16,7 @@ class RandomLinearCode:
             raise ValueError("k must not exceed n.")
         self.estimated_minimum_distance = self._estimate_minimum_distance()
         self.generator_matrix = self._generate_matrix()
+        self.t = (self.estimated_minimum_distance - 1) // 2
 
     def calculate_exact_minimum_distance(self):
 
@@ -117,6 +118,5 @@ class RandomLinearCode:
         return np.dot(message, self.generator_matrix) % self.q
 
     def __str__(self):
-        return f"RandomLinearCode(n={self.n}, k={self.k}, q={self.q}) \nGenerator Matrix:\n{self.generator_matrix} \nEstimated Minimal Minimum Distance: {self.estimated_minimum_distance}"
-
+        return f"RandomLinearCode(n={self.n}, k={self.k}, q={self.q}) \nGenerator Matrix:\n{self.generator_matrix} \nEstimated Minimal Minimum Distance: {self.estimated_minimum_distance}\nMax error weight by estimation t: {self.t}"
 
