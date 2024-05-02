@@ -1,5 +1,5 @@
 from src.linear_code import RandomLinearCode
-
+from src.construction_a import ConstructionA
 n = 7
 q = 7
 k = 3
@@ -15,3 +15,5 @@ print(f"Message: {message}")
 encoded_message = random_code.encode(message)
 print(f"Encoded Message: {encoded_message}")
 
+lattice_basis = ConstructionA(random_code.generator_matrix, q).lattice_bases
+print(f"Lattice Basis:\n{lattice_basis}")
