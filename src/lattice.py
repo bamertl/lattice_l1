@@ -11,7 +11,6 @@ class Lattice:
 
     def volume(self):
         A = np.array(self.basis, dtype=np.float64)
-        
         return np.abs(np.linalg.det(A))
 
     def get_orthonogality(self):

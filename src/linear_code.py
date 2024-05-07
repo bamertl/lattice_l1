@@ -106,6 +106,13 @@ class RandomLinearCode:
         """
         return np.random.randint(0, self.q, size=self.k)
 
+    def get_random_error_vector(self):
+        """ Generate random error vector of maximum weight t"""
+        error_vector = np.zeros(self.n, dtype=int)
+        error_positions = np.random.choice(self.n, self.t, replace=False)
+        error_vector[error_positions] = np.random.choice(self.q, self.t)
+        return error_vector
+
     def encode(self, message):
         """
         Encode a message using the generator matrix.
@@ -118,5 +125,5 @@ class RandomLinearCode:
         return np.dot(message, self.generator_matrix) % self.q
 
     def __str__(self):
-        return f"RandomLinearCode(n={self.n}, k={self.k}, q={self.q}) \nGenerator Matrix:\n{self.generator_matrix} \nEstimated Minimal Minimum Distance: {self.estimated_minimum_distance}\nMax error weight by estimation t: {self.t}"
+        return f"RandomLinearCode(n={self.n}, k={self.k}, q={self.q}) \nGenerator Matrix:\n{self.generator_matrix} \nEstimated Minimal Minimum Distance: {self.estimated_minimum_distance} --> Max error weight by estimation t={self.t}"
 
