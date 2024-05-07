@@ -30,17 +30,17 @@ lattice_basis = ConstructionA(random_code.generator_matrix, q).lattice_bases
 print(f"Lattice Basis:\n{lattice_basis}")
 
 #kanning_embedding(lattice_basis, encoded_message, 1)
-embedded_basis = kanning_embedding(lattice_basis, encoded_message, 2*random_code.t)
-print("Kanning Embedded", embedded_basis)
+embedded_basis = kanning_embedding(lattice_basis, encoded_message, 4)
+print("Kanning Embedded\n", embedded_basis)
 
 reduced_basis = sage.Matrix(ZZ, embedded_basis)
-bkz_reduced_basis = reduced_basis.LLL()
-print("Reduced Basis:")
-print(bkz_reduced_basis)
+
+print("Shortest Vector:")
+for i in range(4):
+    reduced_basis = reduced_basis.BKZ(block_size=10)
+    shortest_vector = min(reduced_basis.columns(), key=lambda v: v.norm())
+    print(shortest_vector % q) 
 
 # Find the shortest vector
-shortest_vector = min(bkz_reduced_basis.columns(), key=lambda v: v.norm())
-print("Shortest Vector Found by BKZ:")
-print(shortest_vector % q) 
 print("Error Vector:")
 print(error_vector)

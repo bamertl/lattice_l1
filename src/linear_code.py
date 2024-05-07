@@ -107,10 +107,13 @@ class RandomLinearCode:
         return np.random.randint(0, self.q, size=self.k)
 
     def get_random_error_vector(self):
-        """ Generate random error vector of maximum weight t"""
+        """ Generate random error vector of maximum weight t, make sure the error vector is not all zeros, if t = 0 throw error"""
+        if self.t == 0:
+            raise ValueError("t must be greater than 0.")
         error_vector = np.zeros(self.n, dtype=int)
-        error_positions = np.random.choice(self.n, self.t, replace=False)
-        error_vector[error_positions] = np.random.choice(self.q, self.t)
+        while np.count_nonzero(error_vector) == 0:
+            error_positions = np.random.choice(self.n, self.t, replace=False)
+            error_vector[error_positions] = np.random.choice(self.q, self.t)
         return error_vector
 
     def encode(self, message):
