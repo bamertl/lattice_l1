@@ -1,10 +1,12 @@
+from sage.all import *
+import sage.all as sage
+
 from src.linear_code import RandomLinearCode
 from src.construction_a import ConstructionA
 from src.kanning_embedding import kanning_embedding
 from src.my_lll import lll_reduction
-import sympy as sp
-import numpy as np
-n = 10
+
+n = 7
 q = 6
 k = 3
 
@@ -31,6 +33,14 @@ print(f"Lattice Basis:\n{lattice_basis}")
 embedded_basis = kanning_embedding(lattice_basis, encoded_message, 2*random_code.t)
 print("Kanning Embedded", embedded_basis)
 
+reduced_basis = sage.Matrix(ZZ, embedded_basis)
+bkz_reduced_basis = reduced_basis.LLL()
+print("Reduced Basis:")
+print(bkz_reduced_basis)
 
-reduced_matrix = lll_reduction(embedded_basis) % q
-print(reduced_matrix)
+# Find the shortest vector
+shortest_vector = min(bkz_reduced_basis.columns(), key=lambda v: v.norm())
+print("Shortest Vector Found by BKZ:")
+print(shortest_vector % q) 
+print("Error Vector:")
+print(error_vector)

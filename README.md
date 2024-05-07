@@ -14,7 +14,7 @@ sage sage_main.py
 
 ## Construction A run normal python file (create venv first)
 ```bash
-python tester.py
+sage tester.py
 ``` 
 
 ## Update Requirements

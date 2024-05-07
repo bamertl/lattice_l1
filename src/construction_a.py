@@ -1,7 +1,9 @@
 import numpy as np
 import sympy as sp
-from sympy.matrices.normalforms import hermite_normal_form
 from itertools import product
+from sage.all import *
+import sage.all as sage
+import sage.matrix.matrix_integer_dense_hnf as matrix_integer_dense_hnf
 
 
 """ n = length of code, k = dimension of each vector """
@@ -25,6 +27,7 @@ class ConstructionA:
         # First, augment the basis vectors with the canonical basis, scaled by q
         augmented_basis = self._augment_with_canonical_basis_and_scale(code_generator_matrix, q)
         # Convert to a sympy Matrix
-        sympy_matrix = sp.Matrix(augmented_basis)
-        H = hermite_normal_form(sympy_matrix)   
-        return np.array(H).T  # Transpose to get lower triangular form
+        A = sage.Matrix(ZZ, augmented_basis)
+        H = matrix_integer_dense_hnf.hnf(A.transpose(), include_zero_rows=False)
+        numpy_arr = H[0].numpy().T
+        return numpy_arr  # Transpose to get lower triangular form
