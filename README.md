@@ -12,9 +12,9 @@ sage -pip install tqdm
 sage sage_main.py
 ```
 
-## Construction A run normal python file (create venv first)
+## Random Linear Code creation plus trying to decode the random code via lattice attack 
 ```bash
-sage tester.py
+sage main.py
 ``` 
 
 ## Update Requirements
