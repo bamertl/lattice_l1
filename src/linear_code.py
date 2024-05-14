@@ -1,14 +1,14 @@
 import numpy as np
 from math import comb, log, exp
 
+"""
+Initialize a random linear code.
+:param n: int, length of the code
+:param k: int, dimension of the code
+:param q: int, modulus (ring or field size) 
+"""
 class RandomLinearCode:
     def __init__(self, n, k, q):
-        """
-        Initialize a random linear code.
-        :param n: int, length of the code
-        :param k: int, dimension of the code
-        :param q: int, modulus (ring or field size) 
-        """
         self.n = n
         self.k = k
         self.q = q
@@ -40,18 +40,8 @@ class RandomLinearCode:
         return min_distance
 
 
+    """Estimate the minimum distance d for large n using the Gilbert-Varshamov Bound."""
     def _estimate_minimum_distance(self):
-        """
-         Estimate the minimum distance d for large n using the Gilbert-Varshamov Bound.
-    
-        Parameters:
-        n (int): Length of the code.
-        k (int): Dimension of the code.
-        q (int): Size of the symbol alphabet (prime number).
-
-        Returns:
-        int: Approximate minimum distance d.
-        """
         M = self.q**self.k  # Size of the code C
         log_M = self.k * log(self.q)
     
@@ -64,50 +54,25 @@ class RandomLinearCode:
                 high = mid - 1
             else:
                 low = mid
-        return low 
+        return low
 
+    """Get the kxk identy matrix and then add n-k columns random columns to it """
     def _generate_matrix(self):
-        """
-        Attempt to generate a random k x n generator matrix with linearly independent rows over GF(q).
-        :return: np.array, a k x n generator matrix with elements in GF(q)
-        """
-        matrix = np.zeros((0, self.n), dtype=int)
-        max_attempts = 1000
-        attempts = 0
-
-        while matrix.shape[0] < self.k and attempts < max_attempts:
-            new_row = np.random.randint(0, self.q, size=(1, self.n))
-            if self._is_independent(new_row, matrix):
-                matrix = np.vstack([matrix, new_row])
-            attempts += 1
-        
-        if matrix.shape[0] < self.k:
-            raise ValueError("Failed to generate a matrix with linearly independent rows after 1000 attempts.")
+        matrix = np.eye(self.k, dtype=int)
+        # now add random n-k columns to the matrix
+        random_part = np.random.randint(0, self.q, size=(self.k, self.n - self.k))
+        print(matrix)
+        print("Random" , random_part)
+        matrix = np.hstack([matrix, random_part])
+        print("Matrix", matrix)
         return matrix
 
-
-    def _is_independent(self, new_row, existing_matrix):
-        """
-        Check if a new row is linearly independent from the rows of the existing matrix.
-        
-        :param new_row: np.array, the new row to test
-        :param existing_matrix: np.array, the existing matrix of rows
-        :return: bool, True if the row is independent, False otherwise
-        """
-        if existing_matrix.size == 0:
-            return True
-        test_matrix = np.vstack([existing_matrix, new_row])
-        rank = np.linalg.matrix_rank(test_matrix % self.q)
-        return rank > existing_matrix.shape[0]
-
+    """ Generate a random message of length k"""
     def get_random_message(self):
-        """
-        Generate a random message of length k
-        """
         return np.random.randint(0, self.q, size=self.k)
 
+    """ Generate random error vector of maximum weight t, make sure the error vector is not all zeros, if t = 0 throw error"""
     def get_random_error_vector(self):
-        """ Generate random error vector of maximum weight t, make sure the error vector is not all zeros, if t = 0 throw error"""
         if self.t == 0:
             raise ValueError("t must be greater than 0.")
         error_vector = np.zeros(self.n, dtype=int)
@@ -115,17 +80,17 @@ class RandomLinearCode:
             error_positions = np.random.choice(self.n, self.t, replace=False)
             error_vector[error_positions] = np.random.choice(self.q, self.t)
         return error_vector
-
+    
+    """ Encode a message using the generator matrix. """
     def encode(self, message):
-        """
-        Encode a message using the generator matrix.
-        
-        :param message: np.array, a 1D array of length k with elements in GF(q)
-        :return: np.array, encoded message of length n
-        """
         if len(message) != self.k:
             raise ValueError("Message length must be equal to k.")
         return np.dot(message, self.generator_matrix) % self.q
+
+    """ This will add the codeword to the generator matrix """
+    def transform_generator_matrix(self, codeword):
+        new_generator_matrix = np.vstack([self.generator_matrix, codeword])
+        return new_generator_matrix
 
     def __str__(self):
         return f"RandomLinearCode(n={self.n}, k={self.k}, q={self.q}) \nGenerator Matrix:\n{self.generator_matrix} \nEstimated Minimal Minimum Distance: {self.estimated_minimum_distance} --> Max error weight by estimation t={self.t}"
