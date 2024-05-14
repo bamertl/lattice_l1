@@ -1,52 +1,38 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from itertools import product, combinations
-from matplotlib.lines import Line2D
 
-# Parameters
-n = 3
-Pn = 10
-radius_Sn = 2
-num_public_key_points = 5  # Number of public key points to generate
+ 
+# Define the basis vectors
+basis_vectors = np.array([[1, 2], [0, 5]])
 
-# Prepare figure
-fig = plt.figure(figsize=(10, 8))
-ax = fig.add_subplot(111, projection='3d')
-ax.set_aspect("auto")
+# Define the field size
+p = 5
 
-# Plot Bn (cube)
-r = [-Pn, Pn]
-for s, e in combinations(np.array(list(product(r, r, r))), 2):
-    if np.sum(np.abs(np.array(s)-np.array(e))) == r[1]-r[0]:
-        ax.plot3D(*zip(s, e), color="blue")
+# Generate all points in the lattice over the field Fp_5
+lattice_points = []
+for i in range(p):
+    for j in range(p):
+        point = (i * basis_vectors[0] + j * basis_vectors[1]) % p
+        lattice_points.append(point)
 
-# Sphere (Sn)
-phi, theta = np.mgrid[0.0:np.pi:20j, 0.0:2.0*np.pi:20j]
-x = radius_Sn * np.sin(phi) * np.cos(theta)
-y = radius_Sn * np.sin(phi) * np.sin(theta)
-z = radius_Sn * np.cos(phi)
-ax.plot_surface(x, y, z, color='red', alpha=0.5)
+# Convert the list of lattice points to a numpy array for plotting
+lattice_points = np.array(lattice_points)
 
-# Vector u (private key)
-u = np.array([1, 1, 1])
-u = radius_Sn * u / np.linalg.norm(u)  # Normalize and scale
-ax.quiver(0, 0, 0, u[0], u[1], u[2], color='green', arrow_length_ratio=0.1, label='Vector u')
+# Plot the lattice points
+plt.figure(figsize=(8, 8))
+plt.scatter(lattice_points[:, 0], lattice_points[:, 1], color='blue')
 
-# Generate public key points within Bn
-public_key_points = np.random.uniform(-Pn, Pn, (num_public_key_points, 3))
-ax.scatter(public_key_points[:, 0], public_key_points[:, 1], public_key_points[:, 2], color='black', label='Public Key Points')
+# Set plot limits
+plt.xlim(-1, p)
+plt.ylim(-1, p)
 
-# Assume v is one of the public key points with a small perturbation
-v = public_key_points[0] + np.array([0.5, 0.5, 0.5])  # Simplified perturbation
-ax.quiver(*public_key_points[0], *v, color='purple', arrow_length_ratio=0.1, label='Vector v')
+# Set labels and title
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('2D Lattice over the Finite Field Fp_5')
 
-ax.set_xlabel('X')
-ax.set_ylabel('Y')
-ax.set_zlabel('Z')
+# Show grid
+plt.grid(True)
 
-# Adjusting legend to include all elements
-ax.legend()
-
-plt.title('Visualization of Bn, Sn, Vector u, Public Key Points, and Vector v')
+# Display the plot
 plt.show()

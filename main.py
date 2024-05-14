@@ -6,9 +6,9 @@ from src.construction_a import ConstructionA
 from src.kanning_embedding import kanning_embedding
 from src.my_lll import lll_reduction
 
-n = 10   # Code Length
+n = 6   # Code Length
 q = 7   # Field/Ring Size
-k = 2   # Dimension
+k = 3   # Dimension
 
 random_code = RandomLinearCode(n, k, q)
 print("Shape",random_code.generator_matrix.shape)
@@ -18,33 +18,38 @@ print(f"Min Distance: {random_code.actual_min_distance}")
 message = random_code.get_random_message()
 print(f"Message: {message}")
 
-encoded_message = random_code.encode(message)
+codeword = random_code.encode(message)
 error_vector = random_code.get_random_error_vector()
 # M = Embedding Scale Factor, should be around ||e||, set M to norm of error vector
 M = np.linalg.norm(error_vector, ord = 2)
 
 
 print(f"Error Vector: {error_vector}")
-print(f"Encoded Message: {encoded_message}")
+print(f"Encoded Message: {codeword}")
 
-encoded_message = (encoded_message + error_vector) % q
-print(f"Encoded Message with Error: {encoded_message}")
+added_error = (codeword + error_vector) % q
+print(f"Encoded Message with Error: {added_error}")
 
-augmented_code = random_code.transform_generator_matrix(encoded_message)
 
-print(f"Augmented Generator Matrix:\n{augmented_code}")
-
-lattice_basis = ConstructionA(augmented_code, q).lattice_bases
+lattice_basis = ConstructionA(random_code.generator_matrix, q).lattice_bases
 print(f"Lattice Basis:\n{lattice_basis}")
 
-reduced_basis = sage.Matrix(ZZ, lattice_basis)
+augmented_basis = kanning_embedding(lattice_basis.T, added_error, 1)
 
-print("Shortest Vector:")
-reduced_basis = reduced_basis.BKZ(delta=0.75)
+print("Embedded Basis:\n",augmented_basis)
+
+reduced_basis = sage.Matrix(ZZ, augmented_basis)
+
+
+reduced_basis = reduced_basis.BKZ(delta=0.75) % q
+
+print("Reduced Basis:\n", reduced_basis)
 shortest_vector = min(reduced_basis.columns(), key=lambda v: v.norm())
+print("Shortest Vector:")
 print(shortest_vector % q) 
 
 # Find the shortest vector
+print("Codeword", codeword)
 print("Error Vector:")
 print(error_vector)
 print(M)

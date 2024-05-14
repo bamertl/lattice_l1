@@ -74,11 +74,6 @@ class RandomLinearCode:
             raise ValueError("Message length must be equal to k.")
         return np.dot(message, self.generator_matrix) % self.q
 
-    """ This will add the codeword to the generator matrix """
-    def transform_generator_matrix(self, codeword):
-        new_generator_matrix = np.vstack([self.generator_matrix, codeword])
-        return new_generator_matrix
-
     def __str__(self):
         return f"RandomLinearCode(n={self.n}, k={self.k}, q={self.q}) \nGenerator Matrix:\n{self.generator_matrix} \nEstimated Minimal Minimum Distance: {self.estimated_minimum_distance} --> Max error weight by estimation t={self.t}"
 
