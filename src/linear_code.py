@@ -1,5 +1,6 @@
 import numpy as np
 from math import comb, log, exp
+import sage.all as sage
 
 """
 Initialize a random linear code.
@@ -9,37 +10,23 @@ Initialize a random linear code.
 """
 class RandomLinearCode:
     def __init__(self, n, k, q):
+        self.F = sage.GF(q)
         self.n = n
         self.k = k
         self.q = q
         if k > n:
             raise ValueError("k must not exceed n.")
-        self.estimated_minimum_distance = self._estimate_minimum_distance()
         self.generator_matrix = self._generate_matrix()
-        self.t = (self.estimated_minimum_distance - 1) // 2
+        self.estimated_minimum_distance = self._estimate_minimum_distance()
+        self.actual_min_distance = self.min_distance_sage()
+        self.t = (self.actual_min_distance - 1) // 2
 
-    def calculate_exact_minimum_distance(self):
-
-        min_distance = self.n   # Start with the maximum possible distance, which is n
-
-        # Loop over all possible non-empty subsets of row indices
-        for i in range(1, 2**self.k):
-            codeword = np.zeros(self.n, dtype=int)
-            # Generate the codeword by summing selected rows
-            for j in range(self.k):
-                if i & (1 << j):  # Check if the j-th bit of i is set
-                    codeword = (codeword + self.generator_matrix[j]) % self.q
-
-            weight = np.count_nonzero(codeword)
-            if weight < min_distance:
-                min_distance = weight
-                # Early exit if a codeword of weight 1 is found
-                if min_distance == 1:
-                    break
-
+    def min_distance_sage(self):
+        self.G = sage.Matrix(self.F, self.generator_matrix)
+        self.sage_code = sage.codes.LinearCode(self.G)
+        min_distance = self.sage_code.minimum_distance()
         return min_distance
-
-
+        
     """Estimate the minimum distance d for large n using the Gilbert-Varshamov Bound."""
     def _estimate_minimum_distance(self):
         M = self.q**self.k  # Size of the code C

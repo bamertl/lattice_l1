@@ -7,14 +7,13 @@ from src.kanning_embedding import kanning_embedding
 from src.my_lll import lll_reduction
 
 n = 10   # Code Length
-q = 2   # Field/Ring Size
+q = 7   # Field/Ring Size
 k = 2   # Dimension
 
 random_code = RandomLinearCode(n, k, q)
 print("Shape",random_code.generator_matrix.shape)
 print(random_code)
-print(f"Actual minimum distance: {random_code.calculate_exact_minimum_distance()}")
-
+print(f"Min Distance: {random_code.actual_min_distance}")
 ## Generate random message with random_code.generate_randome_message and print it, encode it and print the encoded as well
 message = random_code.get_random_message()
 print(f"Message: {message}")
