@@ -3,8 +3,8 @@ from sage.all import *
 from sage.modules.free_module_integer import IntegerLattice
 import random
 
-q = 7  # Field size
-n = 3  # Length of codewords
+q = 3  # Field size
+n = 2  # Length of codewords
 k = 1   # Dimension of the code
 
 def generate_error_vector(t):
@@ -16,11 +16,12 @@ def generate_error_vector(t):
 
 def get_fixed_error_vector():
     error_vector = vector(ZZ, [0] * n)
-    error_vector[0] = 1
+    error_vector[1] = 3
     return error_vector
 
 # Step 1: Generate a random linear code
 random_code = codes.random_linear_code(GF(q), n, k)
+# fixed code
 G = random_code.generator_matrix()
 min_distance = random_code.minimum_distance()
 G = matrix(ZZ, G)
@@ -56,17 +57,20 @@ print(error)
 print("\nTarget vector (codeword + error):")
 print(target_vector)
 
-M = 10
+lattice = IntegerLattice(GF(q),HNF)
+print("is codeword in hnf?", codeword in HNF)
+
+M = 2
 B_prime = HNF.augment(target_vector)
 zeros = vector(ZZ, [0] * (n + 1))
 zeros[-1] = M
 B_prime = B_prime.stack(zeros)
 
+B_prime = matrix(ZZ, B_prime)
 print("\nEmbedded lattice basis matrix B_prime:")
 print(B_prime)
 
 # Compute the shortest vector in the embedded lattice (approximation using LLL)
-
 B_prime = B_prime.LLL()
 print("Reduced: \n", B_prime)
 shortest_vector = B_prime[0] % q
