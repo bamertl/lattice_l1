@@ -3,9 +3,9 @@ from sage.all import *
 from sage.modules.free_module_integer import IntegerLattice
 import random
 
-q = 3  # Field size
-n = 2  # Length of codewords
-k = 1   # Dimension of the code
+q = 13  # Field size
+n = 12  # Length of codewords
+k = 3   # Dimension of the code
 
 def generate_error_vector(t):
     error_vector = vector(ZZ, [0] * n)
@@ -33,7 +33,6 @@ print("\nMinimum Distance of the Code:", min_distance)
 I_n = identity_matrix(ZZ, n) * q
 augmented_matrix = G.T.augment(I_n).T
 HNF = augmented_matrix.hermite_form(include_zero_rows=False)
-HNF = HNF.T
 
 print("\nAugmented Generator Matrix (G | q * I_n):")
 print(augmented_matrix)
@@ -52,19 +51,20 @@ t = (min_distance - 1) // 2
 
 error = get_fixed_error_vector() 
 target_vector = codeword + error
+target_vector = target_vector.change_ring(ZZ)
 print("\nRandom error (less than max correction error):")
 print(error)
 print("\nTarget vector (codeword + error):")
 print(target_vector)
 
-lattice = IntegerLattice(GF(q),HNF)
+lattice = IntegerLattice(HNF)
 print("is codeword in hnf?", codeword in HNF)
 
-M = 2
-B_prime = HNF.augment(target_vector)
+M = 100
+B_prime = HNF.stack(target_vector)
 zeros = vector(ZZ, [0] * (n + 1))
 zeros[-1] = M
-B_prime = B_prime.stack(zeros)
+B_prime = B_prime.augment(zeros)
 
 B_prime = matrix(ZZ, B_prime)
 print("\nEmbedded lattice basis matrix B_prime:")

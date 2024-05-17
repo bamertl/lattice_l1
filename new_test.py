@@ -9,7 +9,6 @@ G = sage.matrix(sage.ZZ, [[1,0,1,1,0], [0,1,1,0,1]]).T
 Gene = G.change_ring(sage.GF(q))
 lin_code = sage.codes.LinearCode(Gene.T)
 
-
 message = sage.vector(sage.GF(q), [1, 2])
 
 codeword = G * message
@@ -23,7 +22,7 @@ print("G_Augmented:\n",G_Augmented)
 HNF = G_Augmented.T.hermite_form(include_zero_rows=False) # 
 print("HNF:\n",HNF.T)
 
-lattice = IntegerLattice(sage.GF(q), HNF)
+lattice = IntegerLattice(HNF)
 
 print("Codeword: ", codeword)
 print("Target Vector", target_vector)
@@ -47,6 +46,6 @@ for codeword in codewords:
 print(f"The closest codeword to the vector {target_vector} is: {closest_codeword}")
 print(f"The Hamming distance between them is: {min_distance}")
 
-
+target_vector = target_vector.change_ring(sage.ZZ)
 print("Closest Vector", lattice.closest_vector(target_vector))
 
