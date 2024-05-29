@@ -3,9 +3,9 @@ from sage.all import *
 from sage.modules.free_module_integer import IntegerLattice
 import random
 
-q = 13  # Field size
-n = 12  # Length of codewords
-k = 3   # Dimension of the code
+q = 7  # Field size
+n = 5  # Length of codewords
+k = 2   # Dimension of the code
 
 def generate_error_vector(t):
     error_vector = vector(ZZ, [0] * n)
@@ -16,7 +16,7 @@ def generate_error_vector(t):
 
 def get_fixed_error_vector():
     error_vector = vector(ZZ, [0] * n)
-    error_vector[1] = 3
+    error_vector[1] = 1
     return error_vector
 
 # Step 1: Generate a random linear code
@@ -60,7 +60,7 @@ print(target_vector)
 lattice = IntegerLattice(HNF)
 print("is codeword in hnf?", codeword in HNF)
 
-M = 100
+M = 1
 B_prime = HNF.stack(target_vector)
 zeros = vector(ZZ, [0] * (n + 1))
 zeros[-1] = M
