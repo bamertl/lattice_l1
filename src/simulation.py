@@ -16,25 +16,39 @@ def simulate_code(G, code_word, q, max_error_weight):
     print("Simulating for G:", G)
     n = G.ncols()
     k = G.nrows()
+    t = max_error_weight
     print(f"n: {n}, k: {k}, q: {q}, max_error_weight: {max_error_weight}")
     error_vectors = get_error_vectors(n, q, max_error_weight) 
 
     print(f"Total error vectors: {len(error_vectors)}")
-    fails = 0
-    success = 0
+    failed_vectors = []
+    good_vectors = []
     for error_vector in tqdm(error_vectors):
         received_word = (code_word + vector(GF(q),error_vector)) % q
-        decoded_error_vector = solve(G, received_word, q, max_error_weight)
+        decoded_error_vector = solve(G, received_word, q, t)
 
         error_vector = vector(ZZ, error_vector)
-        print(f"Error Vector{i}: {error_vector}")
-        print(f"Decoded Error Vector{i}: {decoded_error_vector}")
         if error_vector != decoded_error_vector:
-            fails += 1
+            failed_vectors.append(error_vector)
         else:
-            success += 1
-    print(f"Fails: {fails}, Success: {success}")
-        
+            good_vectors.append(error_vector)
+    print(f"Fails: {len(failed_vectors)}, Success: {len(good_vectors)}")
+    print_stats(failed_vectors, good_vectors)   
+
+def print_stats(failed_vectors, good_vectors):
+    mean_l2_norm_failed = int(sum([v.norm(2) for v in failed_vectors]) / len(failed_vectors))
+    max_l2_norm_failed = int(max([v.norm(2) for v in failed_vectors]))
+    min_l2_norm_failed = int(min([v.norm(2) for v in failed_vectors]))
+    
+    mean_l2_norm_good = int(sum([v.norm(2) for v in good_vectors]) / len(good_vectors))
+    max_l2_norm_good = int(max([v.norm(2) for v in good_vectors]))
+    min_l2_norm_good = int(min([v.norm(2) for v in good_vectors]))
+
+
+    max_weight_successful = int(max([v.norm(1) for v in good_vectors]))
+    print(f"Failed: Mean L2 Norm: {mean_l2_norm_failed}, Max L2 Norm: {max_l2_norm_failed}, Min L2 Norm: {min_l2_norm_failed}")
+    print(f"Success: Mean L2 Norm: {mean_l2_norm_good}, Max L2 Norm: {max_l2_norm_good}, Min L2 Norm: {min_l2_norm_good}")
+    print(f"Max weight of successful vectors: {max_weight_successful}")
 
 def get_num_error_vectors_with_max_weight(n, q, max_error_weight):
     return sum(binomial(n, i) * (q - 1)**i for i in range(1, max_error_weight + 1))

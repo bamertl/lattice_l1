@@ -37,5 +37,5 @@ def kannan_embedding(lattice, target_vector, t):
     target_vector = target_vector.change_ring(ZZ)
     lattice = lattice.stack(target_vector) # adds as row
     zeros = vector(ZZ, [0] * (len(target_vector) + 1))
-    zeros[-1] = 1
+    zeros[-1] = t
     return lattice.augment(zeros) # adds as columns

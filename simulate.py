@@ -4,8 +4,8 @@ import random
 
 
 q = 7  # Field size
-n = 5  # Length of codewords
-k = 2   # Dimension of the code
+n = 10  # Length of codewords
+k = 3   # Dimension of the code
 
 
 
