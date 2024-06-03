@@ -2,6 +2,7 @@ from sage.all import *
 from sage.modules.free_module_integer import IntegerLattice
 from tqdm import tqdm
 import itertools
+import random
 from .solver import solve
 
 
@@ -12,13 +13,13 @@ Simulate different parameters for the linear code and codeword
 :param q: int, modulus (ring or field size)
 :param max_error_weight: int, maximum weight of the error vector, can be found out from G
 """
-def simulate_code(G, code_word, q, max_error_weight):
+def simulate_code(G, code_word, q, max_error_weight, num_vectors=1000):
     print("Simulating for G:", G)
     n = G.ncols()
     k = G.nrows()
     t = max_error_weight
     print(f"n: {n}, k: {k}, q: {q}, max_error_weight: {max_error_weight}")
-    error_vectors = get_error_vectors(n, q, max_error_weight) 
+    error_vectors = get_error_vectors_uniform(n, q, max_error_weight, num_vectors) 
 
     print(f"Total error vectors: {len(error_vectors)}")
     failed_vectors = []
@@ -71,3 +72,40 @@ def get_error_vectors(n, q, error_weight):
                 vector[idx] = val 
             combinations.append(vector)
     return combinations
+
+
+"""
+This gets a number of error vectors uniformly distribued from all possible error_vectors, use this for larger n and q 
+"""
+def get_error_vectors_uniform(n, q, error_weight, num_vectors):
+    
+    total_vectors = get_num_error_vectors_with_weight(n, q, error_weight)
+    print(f"Trying to fetch {num_vectors} error vectors of weight {error_weight} out of {total_vectors} total possible vectors.")
+
+    if num_vectors > total_vectors:
+        raise ValueError(f"Requested number of error vectors {num_vectors} exceeds the total possible number of error vectors {total_vectors}.")
+    
+    error_vectors = set()
+    tries = 0
+    max_tries = 10000
+
+    while len(error_vectors) < num_vectors:
+        if tries >= max_tries:
+            raise RuntimeError(f"Failed to generate {num_vectors} unique error vectors within {max_tries} tries.")
+        
+
+        indices = random.sample(range(n), error_weight)
+        values = [random.randint(1, q-1) for _ in range(error_weight)]
+
+        vector = [0] * n
+        for idx, val in zip(indices, values):
+            vector[idx] = val
+
+        vector_tuple = tuple(vector) # convert to tuple to check for uniqueness
+        if vector_tuple not in error_vectors:
+            error_vectors.add(vector_tuple)
+        else:
+            tries += 1
+        
+    error_vectors = [list(vector) for vector in error_vectors]
+    return error_vectors

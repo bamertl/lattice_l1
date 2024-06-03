@@ -2,12 +2,12 @@ from sage.all import *
 from src.simulation import simulate_code
 import random
 
+seed = 42
+random.seed(seed)
 
-q = 7  # Field size
+q = 211  # Field size
 n = 10  # Length of codewords
 k = 3   # Dimension of the code
-
-
 
 random_code = codes.random_linear_code(GF(q), n, k)
 G = random_code.generator_matrix()
