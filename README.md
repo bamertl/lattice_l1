@@ -1,26 +1,20 @@
 # lattice_l1
 
 ## Setup
-```bash
-python3 -m venv env
-source venv/bin/activate
-pip install -r requirements.txt
-```
-## Testing LLL against Sage
-```bash
-sage -pip install tqdm
-sage sage_main.py
-```
-
-## Random Linear Code creation plus trying to decode the random code via lattice attack 
-```bash
-sage main.py
-``` 
+Gotta have sage installed currently
 
 ## Install some python dependency in sage
 ```bash
 sage -pip install pytest
 ```
+
+## Run a simulation
+the first part might not be needed but sage for some reason sometimes has a bit an issue (replace the path with your path)
+```bash
+export PYTHONPATH="/home/lub/Projects/lattice_l1/src:$PYTHONPATH"
+sage simulate.py 
+```
+
 
 ## Run Tests
 ```bash
@@ -33,11 +27,13 @@ export PYTHONPATH="/home/lub/Projects/lattice_l1/src:$PYTHONPATH"
 sage tests/test_num_error_vector.py 
 ```
 
-##
-
-
-
-## Update Requirements
+## Setup (not important atm)
+```bash
+python3 -m venv env
+source venv/bin/activate
+pip install -r requirements.txt
+```
+### Update Requirements (as we work with sage for now unused)
 ```bash
 pip freeze > requirements.txt
 ```

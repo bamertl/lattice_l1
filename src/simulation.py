@@ -40,15 +40,15 @@ def print_stats(failed_vectors, good_vectors):
     mean_l2_norm_failed = int(sum([v.norm(2) for v in failed_vectors]) / len(failed_vectors))
     max_l2_norm_failed = int(max([v.norm(2) for v in failed_vectors]))
     min_l2_norm_failed = int(min([v.norm(2) for v in failed_vectors]))
+    print(f"Failed: Mean L2 Norm: {mean_l2_norm_failed}, Max L2 Norm: {max_l2_norm_failed}, Min L2 Norm: {min_l2_norm_failed}")
     
-    mean_l2_norm_good = int(sum([v.norm(2) for v in good_vectors]) / len(good_vectors))
-    max_l2_norm_good = int(max([v.norm(2) for v in good_vectors]))
-    min_l2_norm_good = int(min([v.norm(2) for v in good_vectors]))
-
+    if(len(good_vectors) > 0):
+        mean_l2_norm_good = int(sum([v.norm(2) for v in good_vectors]) / len(good_vectors))
+        max_l2_norm_good = int(max([v.norm(2) for v in good_vectors]))
+        min_l2_norm_good = int(min([v.norm(2) for v in good_vectors]))
+        print(f"Success: Mean L2 Norm: {mean_l2_norm_good}, Max L2 Norm: {max_l2_norm_good}, Min L2 Norm: {min_l2_norm_good}")
 
     max_weight_successful = int(max([v.norm(1) for v in good_vectors]))
-    print(f"Failed: Mean L2 Norm: {mean_l2_norm_failed}, Max L2 Norm: {max_l2_norm_failed}, Min L2 Norm: {min_l2_norm_failed}")
-    print(f"Success: Mean L2 Norm: {mean_l2_norm_good}, Max L2 Norm: {max_l2_norm_good}, Min L2 Norm: {min_l2_norm_good}")
     print(f"Max weight of successful vectors: {max_weight_successful}")
 
 def get_num_error_vectors_with_max_weight(n, q, max_error_weight):
