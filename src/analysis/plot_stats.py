@@ -27,7 +27,7 @@ def plot_simulation_stats(stats: SimulationStats, figsavename=None):
     if not figsavename:
         plt.show()
     else:
-        plt.savefig("./figs"+ figsavename)
+        plt.savefig("./figs/"+ figsavename)
         plt.close()
 
 
