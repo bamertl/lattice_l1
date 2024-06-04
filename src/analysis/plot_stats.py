@@ -3,7 +3,7 @@ import sys
 from src.analysis.csv_utils import read_csv_to_stats
 import matplotlib.pyplot as plt
 
-def plot_simulation_stats(stats: SimulationStats):
+def plot_simulation_stats(stats: SimulationStats, figsavename=None):
     n_values = [int(stat.n) for stat in stats]
     q_values = [int(stat.q) for stat in stats]
     num_good_values = [int(stat.num_good) for stat in stats]
@@ -23,11 +23,23 @@ def plot_simulation_stats(stats: SimulationStats):
     plt.title('num_good vs n and q')
     plt.legend()
     plt.grid(True)
-    plt.show()
+
+    if not figsavename:
+        plt.show()
+    else:
+        plt.savefig("./figs"+ figsavename)
+        plt.close()
+
 
 
 if __name__ == "__main__":
     # get command line argument 1 as the csv file name
     filename = sys.argv[1]
+
+    figsavename = sys.argv[2]
+    if not filename:
+        print("Please provide a filename as a command line argument")
+        sys.exit(1)
+
     stats = read_csv_to_stats(filename)
-    plot_simulation_stats(stats)
+    plot_simulation_stats(stats, figsavename)

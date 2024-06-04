@@ -24,6 +24,8 @@ def simulate_code(G, code_word, q, max_error_weight, num_vectors=1000, verbose: 
     t = 1
     if verbose:
         print(f"n: {n}, k: {k}, q: {q}, t:{t} max_error_weight: {max_error_weight}")
+    
+
     error_vectors = get_error_vectors_uniform(n, q, max_error_weight, num_vectors) 
 
     failed_vectors = []
@@ -72,12 +74,20 @@ class SimulationStats:
 
 
 def create_stats(failed_vectors, good_vectors, G, n, q, k, t):
-    mean_l2_norm_failed = int(sum([v.norm(2) for v in failed_vectors]) / len(failed_vectors))
-    max_l2_norm_failed = int(max([v.norm(2) for v in failed_vectors]))
-    min_l2_norm_failed = int(min([v.norm(2) for v in failed_vectors]))
-    mean_l1_norm_failed = int(sum([v.norm(1) for v in failed_vectors]) / len(failed_vectors))
-    max_l1_norm_failed = int(max([v.norm(1) for v in failed_vectors]))
-    min_l1_norm_failed = int(min([v.norm(1) for v in failed_vectors]))    
+    mean_l2_norm_failed = 0 
+    max_l2_norm_failed = 0
+    min_l2_norm_failed = 0
+    mean_l1_norm_failed = 0
+    max_l1_norm_failed = 0
+    min_l1_norm_failed = 0
+
+    if len(failed_vectors) > 0:    
+        mean_l2_norm_failed = int(sum([v.norm(2) for v in failed_vectors]) / len(failed_vectors))
+        max_l2_norm_failed = int(max([v.norm(2) for v in failed_vectors]))
+        min_l2_norm_failed = int(min([v.norm(2) for v in failed_vectors]))
+        mean_l1_norm_failed = int(sum([v.norm(1) for v in failed_vectors]) / len(failed_vectors))
+        max_l1_norm_failed = int(max([v.norm(1) for v in failed_vectors]))
+        min_l1_norm_failed = int(min([v.norm(1) for v in failed_vectors]))    
 
     mean_l2_norm_good = 0
     max_l2_norm_good = 0
@@ -155,7 +165,6 @@ def get_error_vectors_uniform(n, q, error_weight, num_vectors):
     while len(error_vectors) < num_vectors:
         if tries >= max_tries:
             raise RuntimeError(f"Failed to generate {num_vectors} unique error vectors within {max_tries} tries.")
-        
 
         indices = random.sample(range(n), error_weight)
         values = [random.randint(1, q-1) for _ in range(error_weight)]
