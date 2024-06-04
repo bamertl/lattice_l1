@@ -1,4 +1,5 @@
 from sage.all import *
+from dataclasses import dataclass
 from sage.modules.free_module_integer import IntegerLattice
 from tqdm import tqdm
 import itertools
@@ -12,16 +13,19 @@ Simulate different parameters for the linear code and codeword
 :param code_word: vector, the codeword with an error vector added
 :param q: int, modulus (ring or field size)
 :param max_error_weight: int, maximum weight of the error vector, can be found out from G
+
+:return: SimulationStats, a dataclass containing the statistics of the simulation
 """
-def simulate_code(G, code_word, q, max_error_weight, num_vectors=1000):
-    print("Simulating for G:", G)
+
+def simulate_code(G, code_word, q, max_error_weight, num_vectors=1000, verbose: bool = False):
+    #print("Simulating for G:", G)
     n = G.ncols()
     k = G.nrows()
-    t = max_error_weight
-    print(f"n: {n}, k: {k}, q: {q}, max_error_weight: {max_error_weight}")
+    t = 1
+    if verbose:
+        print(f"n: {n}, k: {k}, q: {q}, t:{t} max_error_weight: {max_error_weight}")
     error_vectors = get_error_vectors_uniform(n, q, max_error_weight, num_vectors) 
 
-    print(f"Total error vectors: {len(error_vectors)}")
     failed_vectors = []
     good_vectors = []
     for error_vector in tqdm(error_vectors):
@@ -33,23 +37,82 @@ def simulate_code(G, code_word, q, max_error_weight, num_vectors=1000):
             failed_vectors.append(error_vector)
         else:
             good_vectors.append(error_vector)
-    print(f"Fails: {len(failed_vectors)}, Success: {len(good_vectors)}")
-    print_stats(failed_vectors, good_vectors)   
+    if verbose: 
+        print(f"Fails: {len(failed_vectors)}, Success: {len(good_vectors)}")
+    stats = create_stats(failed_vectors, good_vectors, G, n, q, k, t)   
+    if verbose:
+        print(f"Stats: {stats}")
+    return stats
 
-def print_stats(failed_vectors, good_vectors):
+@dataclass
+class SimulationStats:
+    num_failed: int
+    num_good: int
+
+    n: int
+    k: int
+    q: int
+    t: int
+
+    mean_l2_norm_failed: int
+    max_l2_norm_failed: int
+    min_l2_norm_failed: int
+
+    mean_l1_norm_failed: int
+    max_l1_norm_failed: int
+    min_l1_norm_failed: int
+
+    mean_l2_norm_good: int
+    max_l2_norm_good: int
+    min_l2_norm_good: int
+
+    mean_l1_norm_good: int
+    max_l1_norm_good: int
+    min_l1_norm_good: int
+
+
+def create_stats(failed_vectors, good_vectors, G, n, q, k, t):
     mean_l2_norm_failed = int(sum([v.norm(2) for v in failed_vectors]) / len(failed_vectors))
     max_l2_norm_failed = int(max([v.norm(2) for v in failed_vectors]))
     min_l2_norm_failed = int(min([v.norm(2) for v in failed_vectors]))
-    print(f"Failed: Mean L2 Norm: {mean_l2_norm_failed}, Max L2 Norm: {max_l2_norm_failed}, Min L2 Norm: {min_l2_norm_failed}")
-    
+    mean_l1_norm_failed = int(sum([v.norm(1) for v in failed_vectors]) / len(failed_vectors))
+    max_l1_norm_failed = int(max([v.norm(1) for v in failed_vectors]))
+    min_l1_norm_failed = int(min([v.norm(1) for v in failed_vectors]))    
+
+    mean_l2_norm_good = 0
+    max_l2_norm_good = 0
+    min_l2_norm_good = 0
+    mean_l1_norm_good = 0
+    max_l1_norm_good = 0
+    min_l1_norm_good = 0
     if(len(good_vectors) > 0):
         mean_l2_norm_good = int(sum([v.norm(2) for v in good_vectors]) / len(good_vectors))
         max_l2_norm_good = int(max([v.norm(2) for v in good_vectors]))
         min_l2_norm_good = int(min([v.norm(2) for v in good_vectors]))
-        print(f"Success: Mean L2 Norm: {mean_l2_norm_good}, Max L2 Norm: {max_l2_norm_good}, Min L2 Norm: {min_l2_norm_good}")
+        mean_l1_norm_good = int(sum([v.norm(1) for v in good_vectors]) / len(good_vectors))
+        max_l1_norm_good = int(max([v.norm(1) for v in good_vectors]))
+        min_l1_norm_good = int(min([v.norm(1) for v in good_vectors]))
 
-    max_weight_successful = int(max([v.norm(1) for v in good_vectors]))
-    print(f"Max weight of successful vectors: {max_weight_successful}")
+    return SimulationStats(
+        len(failed_vectors),
+        len(good_vectors), 
+        n, 
+        k, 
+        q, 
+        t,
+        mean_l2_norm_failed, 
+        max_l2_norm_failed, 
+        min_l2_norm_failed, 
+        mean_l1_norm_failed, 
+        max_l1_norm_failed, 
+        min_l1_norm_failed, 
+        mean_l2_norm_good, 
+        max_l2_norm_good, 
+        min_l2_norm_good, 
+        mean_l1_norm_good, 
+        max_l1_norm_good, 
+        min_l1_norm_good, 
+    )
 
 def get_num_error_vectors_with_max_weight(n, q, max_error_weight):
     return sum(binomial(n, i) * (q - 1)**i for i in range(1, max_error_weight + 1))

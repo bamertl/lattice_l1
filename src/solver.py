@@ -15,7 +15,7 @@ def solve(G, target_vector,q, t):
     lattice = transform_to_lattice(G,n,q)
     lattice = kannan_embedding(lattice, target_vector, t)
 
-    shortest_vector = matrix(ZZ, lattice).LLL()[0]
+    shortest_vector = matrix(ZZ, lattice).BKZ()[0]
     # return only first n elements of shortest vector, the last element is the t (added dimension in kannan embedding)
     return vector(shortest_vector[:n])
 
