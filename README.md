@@ -15,6 +15,13 @@ export PYTHONPATH="/home/lub/Projects/lattice_l1/src:$PYTHONPATH"
 sage simulate.py 
 ```
 
+## Plot
+```bash
+sage src/analysis/plot_stats.py csv_name.csv destination_plot_name
+
+```
+
+##
 
 ## Run Tests
 ```bash

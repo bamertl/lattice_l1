@@ -26,12 +26,13 @@ def simulate_code(G, code_word, q, max_error_weight, num_vectors=1000, verbose: 
         print(f"n: {n}, k: {k}, q: {q}, t:{t} max_error_weight: {max_error_weight}")
     
 
-    error_vectors = get_error_vectors_uniform(n, q, max_error_weight, num_vectors) 
+    #error_vectors = get_error_vectors_uniform(n, q, max_error_weight, num_vectors) 
+    error_vectors = get_error_vectors_coordinate_not_uniform(n, q, num_vectors)
 
     failed_vectors = []
     good_vectors = []
     for error_vector in tqdm(error_vectors):
-        received_word = (code_word + vector(GF(q),error_vector)) % q
+        received_word = (code_word + vector(GF(q),error_vector)) % q # not sure if i shouuld take the modulo here
         decoded_error_vector = solve(G, received_word, q, t)
 
         error_vector = vector(ZZ, error_vector)
@@ -44,7 +45,7 @@ def simulate_code(G, code_word, q, max_error_weight, num_vectors=1000, verbose: 
     stats = create_stats(failed_vectors, good_vectors, G, n, q, k, t)   
     if verbose:
         print(f"Stats: {stats}")
-    return stats
+    return stats, good_vectors, failed_vectors
 
 @dataclass
 class SimulationStats:
@@ -72,6 +73,9 @@ class SimulationStats:
     max_l1_norm_good: int
     min_l1_norm_good: int
 
+    max_lee_weight_good: int
+    min_lee_weight_failed: int
+
 
 def create_stats(failed_vectors, good_vectors, G, n, q, k, t):
     mean_l2_norm_failed = 0 
@@ -88,6 +92,7 @@ def create_stats(failed_vectors, good_vectors, G, n, q, k, t):
         mean_l1_norm_failed = int(sum([v.norm(1) for v in failed_vectors]) / len(failed_vectors))
         max_l1_norm_failed = int(max([v.norm(1) for v in failed_vectors]))
         min_l1_norm_failed = int(min([v.norm(1) for v in failed_vectors]))    
+        min_lee_weight_failed: int = min([lee_weight(v, q) for v in failed_vectors])
 
     mean_l2_norm_good = 0
     max_l2_norm_good = 0
@@ -102,6 +107,7 @@ def create_stats(failed_vectors, good_vectors, G, n, q, k, t):
         mean_l1_norm_good = int(sum([v.norm(1) for v in good_vectors]) / len(good_vectors))
         max_l1_norm_good = int(max([v.norm(1) for v in good_vectors]))
         min_l1_norm_good = int(min([v.norm(1) for v in good_vectors]))
+        max_lee_weight_good = max([lee_weight(v, q) for v in good_vectors])
 
     return SimulationStats(
         len(failed_vectors),
@@ -122,7 +128,12 @@ def create_stats(failed_vectors, good_vectors, G, n, q, k, t):
         mean_l1_norm_good, 
         max_l1_norm_good, 
         min_l1_norm_good, 
+        max_lee_weight_good,
+        min_lee_weight_failed
     )
+
+def lee_weight(vector, q):
+    return sum(abs(x) if abs(x) < q / 2 else q - abs(x) for x in vector)
 
 def get_num_error_vectors_with_max_weight(n, q, max_error_weight):
     return sum(binomial(n, i) * (q - 1)**i for i in range(1, max_error_weight + 1))
@@ -181,3 +192,31 @@ def get_error_vectors_uniform(n, q, error_weight, num_vectors):
         
     error_vectors = [list(vector) for vector in error_vectors]
     return error_vectors
+
+""" Will do it for the first 3 coordinates"""
+def get_error_vectors_coordinate_not_uniform(n, q, num_vectors):
+    per_coordinate = num_vectors // 3
+    if q < per_coordinate:
+        per_coordinate = q - 1
+    
+    error_vectors = []
+    for i in range(per_coordinate // 2):
+        error_vector = [0] * n
+        for j in range(3):
+            error_vector[j] = i 
+            error_vectors.append(error_vector)
+            error_vector = [0] * n
+
+    for i in range(per_coordinate // 2):
+        value = q - i - 1
+
+        for j in range(3):
+            error_vector[j] = value
+            error_vectors.append(error_vector)
+            error_vector = [0] * n
+
+    # make them unique
+    error_vectors = list(set([tuple(vector) for vector in error_vectors]))
+    print("Total Number of Error Vectors", len(error_vectors))
+    return error_vectors
+        

@@ -16,7 +16,7 @@ def do_simulation(q, n, k):
     random_message = vector(GF(q), [random.randint(0, q-1) for _ in range(k)])
     codeword = random_message * G
     t = (min_distance - 1) // 2
-    simulation_stats: SimulationStats = simulate_code(G, codeword, q, t, verbose=True)
+    simulation_stats, _, _ = simulate_code(G, codeword, q, t, verbose=True)
     write_single_stat_to_csv(simulation_stats, "simulation_results3.csv") 
 
 def get_10_primes_between_11_and_511():
