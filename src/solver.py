@@ -13,7 +13,7 @@ returns the error vector (hopefully)
 def solve(G, target_vector,q, t):
     n = len(target_vector)
     lattice = transform_to_lattice(G,n,q)
-    lattice = kannan_embedding(lattice, target_vector, t)
+    lattice = kannan_embedding(lattice, target_vector, t,q)
 
     shortest_vector = matrix(ZZ, lattice).BKZ()[0]
     # return only first n elements of shortest vector, the last element is the t (added dimension in kannan embedding)
@@ -32,9 +32,12 @@ def transform_to_lattice(G, n, q):
 """
 Kannan Embedding to transform BDD Problem to Shortest Vector Problem
 """
-def kannan_embedding(lattice, target_vector, t):
+def kannan_embedding(lattice, target_vector, t,q):
+    
     # Embed the target vector into the lattice
     target_vector = target_vector.change_ring(ZZ)
+    # apply marc-lee projection
+    target_vector = target_vector.apply_map(lambda x: x - q if x > q/2 else x) 
     lattice = lattice.stack(target_vector) # adds as row
     zeros = vector(ZZ, [0] * (len(target_vector) + 1))
     zeros[-1] = t

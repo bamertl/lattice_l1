@@ -8,19 +8,20 @@ Gotta have sage installed currently
 sage -pip install pytest
 ```
 
-## Run a simulation
-the first part might not be needed but sage for some reason sometimes has a bit an issue (replace the path with your path)
+## Run plot for all numbers in the spectrum from -q/2 to q/2 as error_vectors (everything above)
 ```bash
-export PYTHONPATH="/home/lub/Projects/lattice_l1/src:$PYTHONPATH"
-sage simulate.py 
+sage simulate_with_negative.py 
+```
+
+## Run plot for whole band 0-q
+```bash
+sage simulate_whole_band.py
 ```
 
 ## Plot
 ```bash
 sage src/analysis/plot_stats.py csv_name.csv destination_plot_name
-
 ```
-
 ##
 
 ## Run Tests
@@ -30,7 +31,6 @@ sage -python -m pytest
 
 ## If you want to call the tests directly for me for some reason had issues
 ```bash
-export PYTHONPATH="/home/lub/Projects/lattice_l1/src:$PYTHONPATH"
 sage tests/test_num_error_vector.py 
 ```
 

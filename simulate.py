@@ -1,4 +1,11 @@
 from sage.all import *
+import sys
+import os
+
+# Add the src directory to the Python path
+sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+
+
 from src.simulation import simulate_code, SimulationStats
 from src.linear_code.linear_code_utils import estimate_minimum_distance
 from src.analysis.csv_utils import write_single_stat_to_csv, read_csv_to_stats
