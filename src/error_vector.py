@@ -21,16 +21,16 @@ def get_marc_lee_error_vector(n, t):
 
 def generate_marc_lee_error_vectors(n, t, num_vectors, max_tries=10000):
     unique_vectors = set()
-    tries = 0
-    while len(unique_vectors) < num_vectors and tries < max_tries:
+    attempts = 0
+    while len(unique_vectors) < num_vectors and attempts < max_tries:
         vector = get_marc_lee_error_vector(n, t)
-        unique_vectors.add(vector)
+        unique_vectors.add(tuple(vector))
         attempts += 1
 
     if len(unique_vectors) < num_vectors:
         print("Only generated", len(unique_vectors), "unique error vectors out of", num_vectors, "requested.")
 
-    return list(unique_vectors)
+    return [list(v) for v in unique_vectors]
 
 """
 This gets all possible error vectors of a given weight, use careful for higher dimension as this possibly takes up huge space.

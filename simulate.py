@@ -5,16 +5,16 @@ import os
 # Add the src directory to the Python path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-
-from src.simulation import simulate_code, SimulationStats
+from src.error_vector import generate_marc_lee_error_vectors
+from src.simulation import simulate_code
 from src.linear_code.linear_code_utils import estimate_minimum_distance
-from src.analysis.csv_utils import write_single_stat_to_csv, read_csv_to_stats
+from src.analysis.csv_utils import write_single_stat_to_csv
 import random
 
 seed = 42
 random.seed(seed)
 
-def do_simulation(q, n, k):
+def do_simulation(q, n, k, result_file_name):
     random_code = codes.random_linear_code(GF(q), n, k)
     G = random_code.generator_matrix()
     min_distance = estimate_minimum_distance(n, k, q) 
@@ -23,19 +23,19 @@ def do_simulation(q, n, k):
     random_message = vector(GF(q), [random.randint(0, q-1) for _ in range(k)])
     codeword = random_message * G
     t = (min_distance - 1) // 2
-    simulation_stats, _, _ = simulate_code(G, codeword, q, t, verbose=True)
-    write_single_stat_to_csv(simulation_stats, "simulation_results3.csv") 
 
-def get_10_primes_between_11_and_511():
-    return [p for p in prime_range(4000, 5000)][:10]
+    error_vectors = generate_marc_lee_error_vectors(n, t, 1000)
+    simulation_stats, _, _ = simulate_code(G, codeword, q=q, max_error_weight=t, error_vectors=error_vectors, verbose=True)
+    write_single_stat_to_csv(simulation_stats, result_file_name) 
 
-primes = [11, 31, 97, 211, 503, 1051, 2053, 4049]   
-n = [11, 31]
-k = [3, 16]
+primes = [17, 31, 97, 1024]   
+n = [11, 31, 51]
+k = [3, 16, 25]
+file_name = "simulation_results.csv"
 
 current = 0
 for prime in primes:
     for i in range(len(n)):
         current += 1
         print(f"Simulation: {current} / {len(n) * len(primes)}")
-        do_simulation(prime, n[i], k[i])
+        do_simulation(prime, n[i], k[i], file_name)

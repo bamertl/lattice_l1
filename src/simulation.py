@@ -14,18 +14,19 @@ Simulate different parameters for the linear code and codeword
 """
 
 def simulate_code(G, code_word, q, max_error_weight, error_vectors, verbose: bool = False):
-    #print("Simulating for G:", G)
     n = G.ncols()
     k = G.nrows()
-    t = 1
+    kannang_t = 1
+
+    estimated_t = max_error_weight
     if verbose:
-        print(f"n: {n}, k: {k}, q: {q}, t:{t} max_error_weight: {max_error_weight}")
+        print(f"n: {n}, k: {k}, q: {q} max_error_weight: {max_error_weight}")
     
     failed_vectors = []
     good_vectors = []
     for error_vector in tqdm(error_vectors):
         received_word = (code_word + vector(GF(q),error_vector)) % q # not sure if i shouuld take the modulo here
-        decoded_error_vector = solve(G, received_word, q, t)
+        decoded_error_vector = solve(G, received_word, q, kannang_t)
 
         error_vector = vector(ZZ, error_vector)
         if error_vector != decoded_error_vector:
@@ -34,8 +35,10 @@ def simulate_code(G, code_word, q, max_error_weight, error_vectors, verbose: boo
             good_vectors.append(error_vector)
     if verbose: 
         print(f"Fails: {len(failed_vectors)}, Success: {len(good_vectors)}")
-    stats = create_stats(failed_vectors, good_vectors, G, n, q, k, t)   
+    stats = create_stats(failed_vectors, good_vectors, n, q, k, estimated_t, kannang_t)   
     if verbose:
+        print("Max L1 Norm Decoded", stats.max_l1_norm_good)
+        print("Min L1 Norm not Decoded", stats.min_l1_norm_failed)
         print(f"Stats: {stats}")
     return stats, good_vectors, failed_vectors
 
@@ -47,8 +50,9 @@ class SimulationStats:
     n: int
     k: int
     q: int
-    t: int
+    estimated_t: int
 
+    kannang_t: int
     mean_l2_norm_failed: int
     max_l2_norm_failed: int
     min_l2_norm_failed: int
@@ -69,7 +73,7 @@ class SimulationStats:
     min_lee_weight_failed: int
 
 
-def create_stats(failed_vectors, good_vectors, G, n, q, k, t):
+def create_stats(failed_vectors, good_vectors, n, q, k, estimated_t, kannang_t):
     mean_l2_norm_failed = 0 
     max_l2_norm_failed = 0
     min_l2_norm_failed = 0
@@ -104,26 +108,27 @@ def create_stats(failed_vectors, good_vectors, G, n, q, k, t):
         max_lee_weight_good = max([lee_weight(v, q) for v in good_vectors])
 
     return SimulationStats(
-        len(failed_vectors),
-        len(good_vectors), 
-        n, 
-        k, 
-        q, 
-        t,
-        mean_l2_norm_failed, 
-        max_l2_norm_failed, 
-        min_l2_norm_failed, 
-        mean_l1_norm_failed, 
-        max_l1_norm_failed, 
-        min_l1_norm_failed, 
-        mean_l2_norm_good, 
-        max_l2_norm_good, 
-        min_l2_norm_good, 
-        mean_l1_norm_good, 
-        max_l1_norm_good, 
-        min_l1_norm_good, 
-        max_lee_weight_good,
-        min_lee_weight_failed
+        num_failed = len(failed_vectors),
+        num_good =len(good_vectors), 
+        n=n, 
+        k=k, 
+        q=q, 
+        estimated_t =estimated_t,
+        kannang_t = kannang_t,
+        mean_l2_norm_failed =   mean_l2_norm_failed, 
+        max_l2_norm_failed  =   max_l2_norm_failed, 
+        min_l2_norm_failed  =   min_l2_norm_failed, 
+        mean_l1_norm_failed =   mean_l1_norm_failed, 
+        max_l1_norm_failed  =   max_l1_norm_failed, 
+        min_l1_norm_failed  =   min_l1_norm_failed, 
+        mean_l2_norm_good   =   mean_l2_norm_good, 
+        max_l2_norm_good    =   max_l2_norm_good, 
+        min_l2_norm_good    =   min_l2_norm_good, 
+        mean_l1_norm_good   =   mean_l1_norm_good, 
+        max_l1_norm_good    =   max_l1_norm_good, 
+        min_l1_norm_good    =   min_l1_norm_good, 
+        max_lee_weight_good =   max_lee_weight_good,
+        min_lee_weight_failed   = min_lee_weight_failed
     )
 
 def lee_weight(vector, q):
