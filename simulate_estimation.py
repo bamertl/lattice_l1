@@ -7,7 +7,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 from src.error_vector import generate_marc_lee_error_vectors
 from src.simulation import simulate_code
-from src.linear_code.linear_code_utils import estimate_minimum_distance
+from src.linear_code.linear_code_utils import lgvk
 from src.analysis.csv_utils import write_single_stat_to_csv
 import random
 
@@ -17,7 +17,8 @@ random.seed(seed)
 def do_simulation(q, n, k, result_file_name):
     random_code = codes.random_linear_code(GF(q), n, k)
     G = random_code.generator_matrix()
-    min_distance = estimate_minimum_distance(n, k, q) 
+    min_distance = lgvk(n, k, q) 
+    print(min_distance)
     if min_distance < 3:
         raise ValueError("Estimated Minimum distance for this (n,k,q) code is less than 3")
     random_message = vector(GF(q), [random.randint(0, q-1) for _ in range(k)])
