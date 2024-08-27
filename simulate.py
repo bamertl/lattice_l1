@@ -24,13 +24,16 @@ def do_simulation(q, n, k, result_file_name):
     codeword = random_message * G
     t = (min_distance - 1) // 2
 
-    error_vectors = generate_marc_lee_error_vectors(n, t, 1000)
-    simulation_stats, _, _ = simulate_code(G, codeword, q=q, max_error_weight=t, error_vectors=error_vectors, verbose=True)
+    max_error_weight = q-1
+    error_vectors = []
+    for i in range(1, max_error_weight + 1):
+        error_vectors.extend(generate_marc_lee_error_vectors(n, i, 100))
+    simulation_stats, _, _ = simulate_code(G, codeword, q=q, max_error_weight=max_error_weight, error_vectors=error_vectors, verbose=True)
     write_single_stat_to_csv(simulation_stats, result_file_name) 
 
-primes = [17, 31, 97, 1024]   
-n = [11, 31, 51]
-k = [3, 16, 25]
+primes = [17, 31]   
+n = [11, 31]
+k = [3, 16]
 file_name = "simulation_results.csv"
 
 current = 0

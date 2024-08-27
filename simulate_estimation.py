@@ -7,7 +7,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 from src.error_vector import generate_marc_lee_error_vectors
 from src.simulation import simulate_code
-from src.linear_code.linear_code_utils import lgvk
+from src.linear_code.distance import lgvk
 from src.analysis.csv_utils import write_single_stat_to_csv
 import random
 
