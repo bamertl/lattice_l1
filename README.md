@@ -1,7 +1,20 @@
 # lattice_l1
 
 ## Setup
-Gotta have sage installed currently
+## Install Sage
+
+```bash
+sage 
+```
+
+
+
+
+
+
+
+
+
 
 ## Install some python dependency in sage
 ```bash

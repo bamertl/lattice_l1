@@ -146,12 +146,14 @@ def write_to_csv(sub_dir, n, k, q, good_vectors, failed_vectors, estimated_t):
 
     batch_size = 1000  # Adjust this based on memory capacity
     batch = []
+    file_exists = os.path.isfile(csv_file_path)
 
-    with open(csv_file_path, mode='w', newline='') as file:
+    with open(csv_file_path, mode='a', newline='') as file:
         writer = csv.writer(file)
         
         # Write the headers (optional)
-        writer.writerow(['Vector Type', 'Vector'])
+        if not file_exists:
+            writer.writerow(['Vector Type', 'Vector'])
         
         for vector in good_vectors:
             batch.append(['G'] + list(vector))
@@ -170,22 +172,25 @@ def write_to_csv(sub_dir, n, k, q, good_vectors, failed_vectors, estimated_t):
             batch.clear()
 
 def do_simulation(q, n, k,  sub_dir):
-    random_code = codes.random_linear_code(GF(q), n, k)
-    G = random_code.generator_matrix()
-    min_distance = estimate_minimum_distance(n, k, q) 
-    if min_distance < 3:
-        raise ValueError("Estimated Minimum distance for this (n,k,q) code is less than 3")
-    random_message = vector(GF(q), [random.randint(0, q-1) for _ in range(k)])
-    codeword = random_message * G
-    t = (min_distance - 1) // 2
+    error_vectors = get_error_vectors(n, q, 200) 
 
-    error_vectors = get_error_vectors(n, q, 100) 
-    good_vectors, failed_vectors = simulate_code(G, codeword, q=q, error_vectors=error_vectors, verbose=True)
-    write_to_csv(sub_dir, n, k, q, good_vectors, failed_vectors, t)
+    for _ in range(10):
+        random_code = codes.random_linear_code(GF(q), n, k)
+        G = random_code.generator_matrix()
+        min_distance = estimate_minimum_distance(n, k, q) 
+        t = (min_distance - 1) // 2
+        if min_distance < 3:
+            raise ValueError("Estimated Minimum distance for this (n,k,q) code is less than 3")
+
+        random_message = vector(GF(q), [random.randint(0, q-1) for _ in range(k)])
+        codeword = random_message * G
+
+        good_vectors, failed_vectors = simulate_code(G, codeword, q=q, error_vectors=[sublist[:] for sublist in error_vectors], verbose=True)
+        write_to_csv(sub_dir, n, k, q, good_vectors, failed_vectors, t)
     
-primes = [17, 31]   
-n = [11, 31]
-k = [3, 16]
+primes = [17]   
+n = [11, 31, 61, 101]
+k = [3, 16, 30, 52]
 
 
 current = 0
@@ -194,4 +199,4 @@ for prime in primes:
     for i in range(len(n)):
         current += 1
         print(f"Simulation: {current} / {len(n) * len(primes)}")
-        do_simulation(prime, n[i], k[i], "experiment1")
+        do_simulation(prime, n[i], k[i], "experiment2")

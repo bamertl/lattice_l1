@@ -71,39 +71,59 @@ def calculate_distances_and_percentages(good_vectors, failed_vectors, n, k, q, e
     
     return l1_percentages, l2_percentages, lee_percentages
 
-def plot_distances(l1_percentages, l2_percentages, lee_percentages):
-    # Plot L1 Norm percentages
+def plot_distances(l1_percentages, l2_percentages, lee_percentages, n, k, q):
+
+
+    ylabel = "Successfully Decoded %"
+    title = f"(n: {n}, k: {k}, q: {q}) Code " 
+
+
     plt.figure(figsize=(10, 6))
-    plt.plot(list(l1_percentages.keys()), list(l1_percentages.values()), marker='o', label='L1 Norm')
-    plt.xlabel('Distance')
-    plt.ylabel('Good Vectors Percentage')
-    plt.title('L1 Norm vs Percentage of Good Vectors')
-    plt.grid(True)
-    plt.legend()
+    plt.scatter(list(l1_percentages.keys()), list(l1_percentages.values()), 
+                color='red', edgecolor='black', s=100, label='Decoded')
+    plt.xlabel('L1 Norm', fontsize=14)
+    plt.ylabel(ylabel, fontsize=14)
+    plt.title(title + "over L1", fontsize=16, weight='bold')
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.legend(fontsize=12)
+
+    # Adjust the layout to avoid any overlapping and ensure everything is well-spaced
+    plt.tight_layout()
+
+    # Show the plot
     plt.show()
     
     # Plot L2 Norm percentages
     plt.figure(figsize=(10, 6))
-    plt.plot(list(l2_percentages.keys()), list(l2_percentages.values()), marker='o', label='L2 Norm')
-    plt.xlabel('Distance')
-    plt.ylabel('Good Vectors Percentage')
-    plt.title('L2 Norm vs Percentage of Good Vectors')
-    plt.grid(True)
-    plt.legend()
+    plt.scatter(list(l2_percentages.keys()), list(l2_percentages.values()), 
+                color='blue', edgecolor='black', s=100, label='Decoded')
+    plt.xlabel('L2 Norm', fontsize=14)
+    plt.ylabel(ylabel, fontsize=14)
+    plt.title(title + "over L2", fontsize=16, weight='bold')
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.legend(fontsize=12)
+    plt.tight_layout()
     plt.show()
-    
+
     # Plot Lee Distance percentages
     plt.figure(figsize=(10, 6))
-    plt.plot(list(lee_percentages.keys()), list(lee_percentages.values()), marker='o', label='Lee Distance')
-    plt.xlabel('Distance')
-    plt.ylabel('Good Vectors Percentage')
-    plt.title('Lee Distance vs Percentage of Good Vectors')
-    plt.grid(True)
-    plt.legend()
+    plt.scatter(list(lee_percentages.keys()), list(lee_percentages.values()), 
+                color='green', edgecolor='black', s=100, label='Decoded')
+    plt.xlabel('Lee Distance', fontsize=14)
+    plt.ylabel(ylabel, fontsize=14)
+    plt.title(title + "over Lee Metric", fontsize=16, weight='bold')
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.legend(fontsize=12)
+    plt.tight_layout()
     plt.show()
 
 def extract_info_from_filename(filename):
-    # Regular expression to extract n, k, q, and estimated_t from the filename
     match = re.match(r"(.*)_n(\d+)_k(\d+)_q(\d+)_estimated_t(\d+)\.csv", filename)
     if match:
         custom_name = match.group(1)
@@ -149,7 +169,7 @@ def main(file_path):
     print(f"Number of good vectors: {len(good_vectors)}")
     print(f"Number of failed vectors: {len(failed_vectors)}")
     l1_perc, l2_perc, lee_perc = calculate_distances_and_percentages(good_vectors, failed_vectors, n, k, q, estimated_t)
-    plot_distances(l1_perc, l2_perc, lee_perc)
+    plot_distances(l1_perc, l2_perc, lee_perc, n, k, q)
 
 
 if __name__ == "__main__":
