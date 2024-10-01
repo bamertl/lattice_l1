@@ -172,9 +172,9 @@ def write_to_csv(sub_dir, n, k, q, good_vectors, failed_vectors, estimated_t):
             batch.clear()
 
 def do_simulation(q, n, k,  sub_dir):
-    error_vectors = get_error_vectors(n, q, 200) 
+    error_vectors = get_error_vectors(n, q, 300) 
 
-    for _ in range(10):
+    for _ in range(5):
         random_code = codes.random_linear_code(GF(q), n, k)
         G = random_code.generator_matrix()
         min_distance = estimate_minimum_distance(n, k, q) 
@@ -189,8 +189,8 @@ def do_simulation(q, n, k,  sub_dir):
         write_to_csv(sub_dir, n, k, q, good_vectors, failed_vectors, t)
     
 primes = [17]   
-n = [11, 31, 61, 101]
-k = [3, 16, 30, 52]
+n = [101]
+k = [52]
 
 
 current = 0
@@ -199,4 +199,4 @@ for prime in primes:
     for i in range(len(n)):
         current += 1
         print(f"Simulation: {current} / {len(n) * len(primes)}")
-        do_simulation(prime, n[i], k[i], "experiment2")
+        do_simulation(prime, n[i], k[i], "tester2")

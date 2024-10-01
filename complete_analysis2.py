@@ -83,8 +83,6 @@ def read_vectors_from_csv(file_path):
     return good_vectors, failed_vectors
 
 def plot_combined_norms(subfolder_path):
-    plt.figure(figsize=(12, 8))
-    plt.style.use('seaborn-whitegrid')
 
     for norm_type in ['L1', 'L2', 'Lee']:
         plt.figure(figsize=(12, 8))

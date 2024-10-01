@@ -7,15 +7,6 @@
 sage 
 ```
 
-
-
-
-
-
-
-
-
-
 ## Install some python dependency in sage
 ```bash
 sage -pip install pytest
@@ -56,4 +47,10 @@ pip install -r requirements.txt
 ### Update Requirements (as we work with sage for now unused)
 ```bash
 pip freeze > requirements.txt
+```
+
+
+### Run analysis
+```bash
+python3 complete_analysis2.py ./data/experiment2
 ```
