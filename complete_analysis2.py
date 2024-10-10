@@ -4,7 +4,10 @@ import csv
 import sys
 import numpy as np
 from collections import defaultdict
+import seaborn as sns
+sns.set_style("whitegrid")
 import matplotlib.pyplot as plt
+print(plt.style.available)
 
 def calculate_percentages(good_vectors, failed_vectors, q):
     def l1_norm(vector):
@@ -86,7 +89,6 @@ def plot_combined_norms(subfolder_path):
 
     for norm_type in ['L1', 'L2', 'Lee']:
         plt.figure(figsize=(12, 8))
-        plt.style.use('seaborn-whitegrid')
 
         for filename in os.listdir(subfolder_path):
             if filename.endswith(".csv"):
