@@ -61,7 +61,7 @@ def plot_minimum_distances(csv_file):
 
         # Rotate x labels for readability
         ax = sns.heatmap(heatmap_data, annot=True, fmt=".0f", cmap="YlGnBu",
-                         xticklabels=ns, yticklabels=ks, cbar_kws={'label': 'Estimated t'},
+                         xticklabels=ns, yticklabels=ks, cbar_kws={'label': 'Estimated d'},
                          annot_kws={"size": 7}, linewidths=.5)
         plt.xticks(rotation=45, fontsize=10)
         plt.yticks(rotation=0, fontsize=10)
