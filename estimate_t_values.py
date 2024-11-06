@@ -14,6 +14,7 @@ def estimate_minimum_distance(n, k, q):
             low = mid
     return low
 
+
 def run_estimations():
     # n between 11 and 101
     n_values = range(11, 202)
@@ -31,7 +32,7 @@ def run_estimations():
                 for q in primes:
                     estimated_d = estimate_minimum_distance(n, k, q)
                     file.write(f"{n},{k},{q},{estimated_d}\n")
-                    print(f"n={n}, k={k}, q={q} -> estimated d={estimated_d}")
+                    print(f"n={n}, k={k}, q={q} -> estimated t={estimated_d}")
 
 if __name__ == "__main__":
     run_estimations()
