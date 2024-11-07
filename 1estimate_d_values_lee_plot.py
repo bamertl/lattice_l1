@@ -23,16 +23,16 @@ def plot_distances():
         hamming_filtered = hamming_data[hamming_data['q'] == q]
 
         # Plot Lee distance vs. n
-        plt.figure(figsize=(8, 6))
+        plt.figure(figsize=(10, 6))
         plt.plot(lee_filtered['n'], lee_filtered['estimated_d'], label="Lee Distance", marker='o', markersize=6, linewidth=2, color='blue')
         
         # Plot Hamming distance vs. n
         plt.plot(hamming_filtered['n'], hamming_filtered['estimated_d'], label="Hamming Distance", marker='x', markersize=6, linewidth=2, color='red')
 
         # Labels and title with LaTeX formatting
-        plt.xlabel(r"$n$", fontsize=14)
-        plt.ylabel(r"Estimated Minimum Distance (d)", fontsize=14)
-        plt.title(f"Estimated Minimum Distance (d) vs $n$ (p = {q})", fontsize=16)
+        plt.xlabel(r"Dimension $n$", fontsize=14)
+        plt.ylabel(r"Estimated Minimum Distance ($d$)", fontsize=14)
+        plt.title(f"Estimated Minimum Distance ($d$) vs $n$ ($p$ = {q})", fontsize=16)
         
         # Add legend
         plt.legend(fontsize=12)

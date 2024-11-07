@@ -1,12 +1,17 @@
 from sage.all import *
 
-from tqdm import tqdm
 import random
 import csv
 import os
 from sage.all_cmdline import *   # import sage library
+import random
+import sage.all
+
+# Set the seed for reproducibility
 seed = 42
-random.seed(seed)
+random.seed(seed)                # Set seed for Python's random module
+sage.all.set_random_seed(seed)   # Set seed for SageMath's random number generato
+
 
 
 _sage_const_1 = Integer(1); _sage_const_2 = Integer(2); _sage_const_0 = Integer(0)
@@ -62,8 +67,6 @@ def generate_lee_error_vectors(n, vector_weight, num_vectors, q, max_tries=10000
             added_weight += 1
         # Randomly invert each coordinate with a 50% probability
         vector = [component if random.random() > 0.5 else -component for component in vector]
-        vector = [component % q for component in vector]
-        print(vector)
         if lee_weight(vector, q) == vector_weight:
             unique_vectors.add(tuple(vector))
         else:
@@ -75,11 +78,12 @@ def generate_lee_error_vectors(n, vector_weight, num_vectors, q, max_tries=10000
 
     return list(unique_vectors)
 
-def generate_lee_error_vectors_for_all_weights(n, q, max_weight, num_vectors, max_tries=10000):
-    all_vectors = {}
-    for weight in range(1, max_weight + 1):
-        all_vectors[weight] = generate_lee_error_vectors(n, weight, num_vectors, q, max_tries)
-    return all_vectors
+def get_error_vectors_lee(n, q, num_vectors, max_tries=10000):
+    error_vectors = []
+    for weight in range(1, q):
+        error_vectors.extend(generate_lee_error_vectors(n, weight, num_vectors, q, max_tries))
+    return error_vectors
+
 
 
 """
@@ -139,9 +143,12 @@ and finally tries to solve the shortest vector problem to find the error vector 
 
 returns the error vector (hopefully)
 """
-def solve(G, target_vector,q, t, metric):
+def solve(G, target_vector,q, error_vector, metric):
     n = len(target_vector)
     lattice = transform_to_lattice(G,n,q)
+
+    t = 1
+
     lattice = kannan_embedding(lattice, target_vector, t,q)
 
     result_vectors = matrix(ZZ, lattice).BKZ()
@@ -190,7 +197,7 @@ Simulate different parameters for the linear code and codeword
 """
 def simulate_code(G, code_word, q, error_vectors, metric, verbose: bool = False):
 
-    if metric != "l2" | metric != "lee" | metric != "l1":
+    if metric not in {"l2", "lee", "l1"}:
         raise ValueError("Metric must be one of 'l2', 'lee', 'l1'")
 
     n = G.ncols()
@@ -202,9 +209,9 @@ def simulate_code(G, code_word, q, error_vectors, metric, verbose: bool = False)
     
     failed_vectors = []
     good_vectors = []
-    for error_vector in tqdm(error_vectors):
+    for error_vector in error_vectors:
         received_word = (code_word + vector(GF(q),error_vector)) % q # not sure if i shouuld take the modulo here
-        decoded_error_vector = solve(G, received_word, q, kannang_t, metric)
+        decoded_error_vector = solve(G, received_word, q, error_vector=error_vector, metric=metric)
 
         error_vector = vector(ZZ, error_vector)
         if error_vector != decoded_error_vector:
@@ -221,12 +228,12 @@ Write to CSV
 
 custom_name = "simulation_results"
 
-def write_to_csv(sub_dir, n, k, q, good_vectors, failed_vectors, estimated_t):
+def write_to_csv(sub_dir, n, k, q, good_vectors, failed_vectors, estimated_t, metric):
 
     directory = "./data"
     full_directory_path = os.path.join(directory, sub_dir)
 
-    csv_file_path = os.path.join(full_directory_path, f"result_n{n}_k{k}_q{q}_estimated_t{estimated_t}.csv")
+    csv_file_path = os.path.join(full_directory_path, f"result_n{n}_k{k}_q{q}_estimated_t{estimated_t}_{metric}.csv")
     os.makedirs(full_directory_path, exist_ok=True)
 
     batch_size = 1000  # Adjust this based on memory capacity
@@ -257,26 +264,29 @@ def write_to_csv(sub_dir, n, k, q, good_vectors, failed_vectors, estimated_t):
             batch.clear()
 
 def do_simulation(q, n, k,  sub_dir):
-    error_vectors = get_error_vectors_hamming(n, q, 100) 
+    error_vectors_lee = get_error_vectors_lee(n, q, 500)
 
-    for _ in range(5):
-        random_code = codes.random_linear_code(GF(q), n, k)
-        G = random_code.generator_matrix()
-        min_distance = estimate_minimum_distance_hamming(n, k, q) 
-        t_hamming = (min_distance - 1) // 2
-        if min_distance < 3:
-            raise ValueError("Estimated Minimum distance for this (n,k,q) code is less than 3")
+    random_code = codes.random_linear_code(GF(q), n, k)
+    G = random_code.generator_matrix()
+    min_distance = estimate_minimum_distance_hamming(n, k, q) 
+    t_hamming = (min_distance - 1) // 2
+    t_lee = (estimate_minimum_distance_lee(n, k, q) - 1) // 2
+    if min_distance < 3:
+        raise ValueError("Estimated Minimum distance for this (n,k,q) code is less than 3")
 
-        random_message = vector(GF(q), [random.randint(0, q-1) for _ in range(k)])
-        codeword = random_message * G
+    random_message = vector(GF(q), [random.randint(0, q-1) for _ in range(k)])
+    codeword = random_message * G
 
-        good_vectors, failed_vectors = simulate_code(G, codeword, q=q, error_vectors=[sublist[:] for sublist in error_vectors], verbose=True)
-        write_to_csv(sub_dir, n, k, q, good_vectors, failed_vectors, t_hamming)
-    
-primes = [17]   
-n = [101]
-k = [52]
+    good_vectors_l2, failed_vectors_l2 = simulate_code(G, codeword, q=q, error_vectors=[sublist[:] for sublist in error_vectors_lee], metric="l2", verbose=True)
+    write_to_csv(sub_dir, n, k, q, good_vectors_l2, failed_vectors_l2, t_hamming, metric="l2")
+    good_vectors_l1, failed_vectors_l1 = simulate_code(G, codeword, q=q, error_vectors=[sublist[:] for sublist in error_vectors_lee], metric="l1", verbose=True)
+    write_to_csv(sub_dir, n, k, q, good_vectors_l1, failed_vectors_l1, t_hamming, metric="l1") 
+    good_vectors_lee, failed_vectors_lee = simulate_code(G, codeword, q=q, error_vectors=[sublist[:] for sublist in error_vectors_lee], metric="lee", verbose=True)
+    write_to_csv(sub_dir, n, k, q, good_vectors_lee, failed_vectors_lee, t_lee, metric="lee")
 
+primes = [5,17,101]   
+n = [10,20, 30, 40, 50]
+k = [5,10, 15, 20, 25]
 
 current = 0
 
@@ -284,4 +294,4 @@ for prime in primes:
     for i in range(len(n)):
         current += 1
         print(f"Simulation: {current} / {len(n) * len(primes)}")
-        do_simulation(prime, n[i], k[i], "lee_decoding")
+        do_simulation(prime, n[i], k[i], "decoding_tis1")

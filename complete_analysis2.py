@@ -17,6 +17,8 @@ def calculate_percentages(good_vectors, failed_vectors, q):
         return np.sqrt(np.sum(np.square(vector)))
 
     def lee_distance(vector, q):
+        "take modulo of the vector first"
+        vector = [component % q for component in vector]
         return np.sum([min(v, q - v) for v in vector])
 
     def calculate_percentage(good_count, total_count):
