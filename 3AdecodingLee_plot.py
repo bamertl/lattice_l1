@@ -88,9 +88,9 @@ def read_vectors_from_csv(file_path):
     return good_vectors, failed_vectors
 
 def plot_combined_norms(subfolder_path):
-    metrics_data = {'l1': defaultdict(lambda: {'good_vectors': [], 'failed_vectors': [], 'estimated_t': 0}),
-                    'l2': defaultdict(lambda: {'good_vectors': [], 'failed_vectors': [], 'estimated_t': 0}),
-                    'lee': defaultdict(lambda: {'good_vectors': [], 'failed_vectors': [], 'estimated_t': 0})}
+    metrics_data = defaultdict(lambda: {'l1': defaultdict(lambda: {'good_vectors': [], 'failed_vectors': [], 'estimated_t': 0}),
+                                        'l2': defaultdict(lambda: {'good_vectors': [], 'failed_vectors': [], 'estimated_t': 0}),
+                                        'lee': defaultdict(lambda: {'good_vectors': [], 'failed_vectors': [], 'estimated_t': 0})})
     
     for filename in os.listdir(subfolder_path):
         if filename.endswith(".csv"):
@@ -102,49 +102,51 @@ def plot_combined_norms(subfolder_path):
                 print(f"Skipping file {filename}: does not match the expected pattern.")
                 continue
             
-            if q == 17:
-                good_vectors, failed_vectors = read_vectors_from_csv(file_path)
-                key = (n, k, q)
-                metrics_data[metric][key]['good_vectors'].extend(good_vectors)
-                metrics_data[metric][key]['failed_vectors'].extend(failed_vectors)
-                metrics_data[metric][key]['estimated_t'] = estimated_t
+            good_vectors, failed_vectors = read_vectors_from_csv(file_path)
+            key = (n, k)
+            metrics_data[q][metric][key]['good_vectors'].extend(good_vectors)
+            metrics_data[q][metric][key]['failed_vectors'].extend(failed_vectors)
+            metrics_data[q][metric][key]['estimated_t'] = estimated_t
 
-    for metric, data in metrics_data.items():
-        plt.figure(figsize=(12, 8))
-        
-        sorted_data = sorted(data.items(), key=lambda x: x[0][0])
-        for (n, k, q), vectors in sorted_data:
-            l1_percentages, l2_percentages, lee_percentages = calculate_percentages(vectors['good_vectors'], vectors['failed_vectors'], q)
+    for q, metrics in metrics_data.items():
+        for metric, data in metrics.items():
+            plt.figure(figsize=(12, 8))
             
-            if metric == 'l1':
-                percentages = l1_percentages
-                xlabel = 'L1 Norm'
-            elif metric == 'l2':
-                percentages = l2_percentages
-                xlabel = 'L2 Norm'
-            else:
-                percentages = lee_percentages
-                xlabel = 'Lee Weight'
+            sorted_data = sorted(data.items(), key=lambda x: x[0][0])
+            for (n, k), vectors in sorted_data:
+                l1_percentages, l2_percentages, lee_percentages = calculate_percentages(vectors['good_vectors'], vectors['failed_vectors'], q)
+                
+                if metric == 'l1':
+                    percentages = l1_percentages
+                    xlabel = '$\ell_1$ Norm'
+                elif metric == 'l2':
+                    percentages = l2_percentages
+                    xlabel = '$\ell_2$ Norm'
+                else:
+                    percentages = lee_percentages
+                    xlabel = 'Lee Weight'
+                
+                label = f"n={n}, k={k}, t={vectors['estimated_t']}"
+                plt.scatter(list(percentages.keys()), list(percentages.values()), 
+                            s=100, label=label, alpha=0.75, edgecolor='black')
             
-            label = f"n={n}, k={k}, q={q}, t={vectors['estimated_t']}"
-            plt.scatter(list(percentages.keys()), list(percentages.values()), 
-                        s=100, label=label, alpha=0.75, edgecolor='black')
-        
-        plt.xlabel(xlabel, fontsize=14)
-        plt.ylabel('Successfully Decoded (%)', fontsize=14)
-        titleadded = "Norm"
-        if metric == 'lee':
-            titleadded = "Lee Metric"
-        plt.title(f'{xlabel} vs Percentage of Decoded Vectors for {metric.capitalize()} {titleadded}', fontsize=16, weight='bold')
-        plt.xticks(fontsize=12)
-        plt.yticks(fontsize=12)
-        plt.grid(True, linestyle='--', alpha=0.7)
-        plt.legend(fontsize=12, loc='upper right', bbox_to_anchor=(1.15, 1))
-        plt.tight_layout()
-        output_dir = './figs/3a'
-        os.makedirs(output_dir, exist_ok=True)
-        plt.savefig(os.path.join(output_dir, f'{metric}_norm_plot.png'))
-        plt.close()
+            plt.xlabel(xlabel, fontsize=14)
+            plt.ylabel('Successfully Decoded (%)', fontsize=14)
+            titleadded = "Norm"
+            if metric == 'lee':
+                titleadded = "Metric"
+
+            plt.title(f'{xlabel} vs Percentage of Decoded Vectors in {xlabel} {titleadded} (q={q})', fontsize=16, weight='bold')
+            plt.xticks(fontsize=12)
+            plt.yticks(fontsize=12)
+            plt.grid(True, linestyle='--', alpha=0.7)
+            plt.legend(fontsize=12, loc='upper right', bbox_to_anchor=(1.15, 1))
+            plt.tight_layout()
+            output_dir = './figs/3a'
+            os.makedirs(output_dir, exist_ok=True)
+            plt.savefig(os.path.join(output_dir, f'{metric}_norm_plot_q{q}.png'))
+            plt.close()
+
 
 def main(subfolder_path):
     if not os.path.isdir(subfolder_path):
