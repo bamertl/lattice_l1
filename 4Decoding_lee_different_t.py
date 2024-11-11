@@ -211,8 +211,11 @@ def simulate_code(G, code_word, q, error_vectors, metric, verbose: bool = False)
         received_word = (code_word + vector(GF(q),error_vector)) % q # not sure if i shouuld take the modulo here
         decoded_error_vector = solve(G, received_word, q, error_vector=error_vector, metric=metric)
 
+        # modulize both vectors
+        decoded_error_vector_test = [component % q for component in decoded_error_vector]
         error_vector = vector(ZZ, error_vector)
-        if error_vector != decoded_error_vector:
+        error_vector_test = [component % q for component in error_vector]
+        if error_vector_test != decoded_error_vector_test:
             failed_vectors.append(error_vector)
         else:
             good_vectors.append(error_vector)
@@ -279,12 +282,10 @@ def do_simulation(q, n, k,  sub_dir):
     good_vectors_lee, failed_vectors_lee = simulate_code(G, codeword, q=q, error_vectors=[sublist[:] for sublist in error_vectors_lee], metric="lee", verbose=True)
     write_to_csv(sub_dir, n, k, q, good_vectors_lee, failed_vectors_lee, t_lee, metric="lee", appendix="withMinus")
 
-    good_vectors_lee_modulo, failed_vectors_lee_modulo = simulate_code(G, codeword, q=q, error_vectors=[sublist[:] for sublist in error_vectors_lee_modulo], metric="lee", verbose=True)
-    write_to_csv(sub_dir, n, k, q, good_vectors_lee_modulo, failed_vectors_lee_modulo, t_lee, metric="lee", appendix="modulized")
 
 primes = [5,17,101]   
-n = [10,20, 30, 40, 50]
-k = [5,10, 15, 20, 25]
+n = [10,20, 30, 40, 50, 100]
+k = [5,10, 15, 20, 25, 50]
 
 current = 0
 

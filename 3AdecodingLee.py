@@ -149,7 +149,7 @@ def solve(G, target_vector,q, error_vector, metric):
 
     t = 1
 
-    lattice = kannan_embedding(lattice, target_vector, t,q)
+    lattice = kannan_embedding(lattice, target_vector, t,q, metric)
 
     result_vectors = matrix(ZZ, lattice).BKZ()
     if metric == "l2":
@@ -175,12 +175,14 @@ def transform_to_lattice(G, n, q):
 """
 Kannan Embedding to transform BDD Problem to Shortest Vector Problem
 """
-def kannan_embedding(lattice, target_vector, t,q):
+def kannan_embedding(lattice, target_vector, t,q, metric):
     
     # Embed the target vector into the lattice
     target_vector = target_vector.change_ring(ZZ)
     # apply marc-lee projection
-    target_vector = target_vector.apply_map(lambda x: x - q if x > q/2 else x) 
+
+    if metric == "lee":
+        target_vector = target_vector.apply_map(lambda x: x - q if x > q/2 else x) 
     lattice = lattice.stack(target_vector) # adds as row
     zeros = vector(ZZ, [0] * (len(target_vector) + 1))
     zeros[-1] = t
@@ -213,8 +215,10 @@ def simulate_code(G, code_word, q, error_vectors, metric, verbose: bool = False)
         received_word = (code_word + vector(GF(q),error_vector)) % q # not sure if i shouuld take the modulo here
         decoded_error_vector = solve(G, received_word, q, error_vector=error_vector, metric=metric)
 
+        decoded_error_vector_test = [component % q for component in decoded_error_vector]
         error_vector = vector(ZZ, error_vector)
-        if error_vector != decoded_error_vector:
+        error_vector_test = [component % q for component in error_vector]
+        if error_vector_test != decoded_error_vector_test:
             failed_vectors.append(error_vector)
         else:
             good_vectors.append(error_vector)
@@ -285,13 +289,13 @@ def do_simulation(q, n, k,  sub_dir):
     write_to_csv(sub_dir, n, k, q, good_vectors_lee, failed_vectors_lee, t_lee, metric="lee")
 
 primes = [5,17,101]   
-n = [10,20, 30, 40, 50]
-k = [5,10, 15, 20, 25]
+n = [10,20, 30, 40, 50, 100]
+k = [5,10, 15, 20, 25, 50]
 
 current = 0
 
 for prime in primes:
     for i in range(len(n)):
         current += 1
-        print(f"Simulation: {current} / {len(n) * len(primes)}")
+        print(f"Simulation: {current} / {len(n) * len(primes)}", flush=True)
         do_simulation(prime, n[i], k[i], "decoding_tis1")

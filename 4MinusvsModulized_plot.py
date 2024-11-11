@@ -94,6 +94,8 @@ def plot_withMinus_vs_modulized(subfolder_path):
         modulized_percentages = calculate_percentages(data['modulized']['good_vectors'], data['modulized']['failed_vectors'], q)
         withMinus_percentages = calculate_percentages(data['withMinus']['good_vectors'], data['withMinus']['failed_vectors'], q)
 
+        print("with minuds",modulized_percentages)
+        print(withMinus_percentages)
         # Plot each variant
         plt.scatter(list(modulized_percentages.keys()), list(modulized_percentages.values()), 
                     label="Modulized", color='blue', alpha=0.75, edgecolor='black', s=100)
