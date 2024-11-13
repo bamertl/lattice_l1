@@ -45,8 +45,8 @@ def plot_csv_file(file_path):
         plt.plot(n_values, exact_t_values, marker='o', label='Exact $t$')
         
         plt.xlabel('Dimension $n$',fontsize=14)
-        plt.ylabel('Lee Distance', fontsize=14)
-        plt.title(f'Estimated $t$ and Exact t vs Dimension $n$ for $p$ = {int(q_value)}', fontsize=16)
+        plt.ylabel('Lee Weight', fontsize=14)
+        plt.title(f'Estimated $t$ and Exact t vs Dimension $n$ for $p$ = {int(q_value)}', fontsize=16, weight='bold')
         plt.legend(fontsize=12)
         plt.grid(True)
         
@@ -64,7 +64,7 @@ def plot_csv_file(file_path):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python plot_csv_file.py <path_to_csv>")
+        print("Usage: python3 2plot_estimate_t_vs_real.py ./data/distance/estimate_t_vs_real.csv ")
     else:
         plot_csv_file(sys.argv[1])
 

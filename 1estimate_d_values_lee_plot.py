@@ -32,7 +32,7 @@ def plot_distances():
         # Labels and title with LaTeX formatting
         plt.xlabel(r"Dimension $n$", fontsize=14)
         plt.ylabel(r"Estimated Minimum Distance ($d$)", fontsize=14)
-        plt.title(f"Estimated Minimum Distance ($d$) vs $n$ ($p$ = {q})", fontsize=16)
+        plt.title(f"Estimated Minimum Distance ($d$) vs $n$ ($p$ = {q})", fontsize=16, weight='bold')
         
         # Add legend
         plt.legend(fontsize=12)

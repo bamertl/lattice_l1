@@ -5,7 +5,7 @@ import sys
 import numpy as np
 from collections import defaultdict
 import matplotlib.pyplot as plt
-
+plt.style.use("seaborn-v0_8-whitegrid")
 
 def calculate_percentages(good_vectors, failed_vectors, q):
     def l1_norm(vector):
@@ -136,7 +136,7 @@ def plot_combined_norms(subfolder_path):
             if metric == 'lee':
                 titleadded = "Metric"
 
-            plt.title(f'{xlabel} vs Percentage of Decoded Vectors in {xlabel} {titleadded} (q={q})', fontsize=16, weight='bold')
+            plt.title(f'{xlabel} vs Percentage of Decoded Vectors in {xlabel} {titleadded} (p={q})', fontsize=16, weight='bold')
             plt.xticks(fontsize=12)
             plt.yticks(fontsize=12)
             plt.grid(True, linestyle='--', alpha=0.7)
@@ -157,7 +157,7 @@ def main(subfolder_path):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python3 combined_norm_analysis.py <subfolder_path>")
+        print("Usage: python3 3AdecodingLee_plot.py ./data/decoding_tis1/")
         sys.exit(1)
     
     subfolder_path = sys.argv[1]

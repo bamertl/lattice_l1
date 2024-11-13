@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
+plt.style.use("seaborn-v0_8-whitegrid")
 
 def calculate_percentages(good_vectors, failed_vectors, q):
     def lee_distance(vector, q):
@@ -33,13 +34,14 @@ def calculate_percentages(good_vectors, failed_vectors, q):
 
 
 def extract_info_from_filename(filename):
-    match = re.match(r"result_n(\d+)_k(\d+)_q(\d+)_estimated_t(\d+)_lee(_withMinus)?\.csv", filename)
+    match = re.match(r"result_n(\d+)_k(\d+)_q(\d+)_estimated_t(\d+)_lee_(.+)?\.csv", filename)
+
     if match:
         n = int(match.group(1))
         k = int(match.group(2))
         q = int(match.group(3))
         estimated_t = int(match.group(4))
-        variant = "withMinus" if match.group(5) else "standardLee"
+        variant = match.group(5)
         return n, k, q, estimated_t, variant
     else:
         raise ValueError("Filename does not match the expected pattern.")
@@ -65,8 +67,8 @@ def read_vectors_from_csv(file_path):
 
 
 def plot_withMinus_vs_standardLee(subfolder_path):
-    comparison_data = defaultdict(lambda: {'standardLee': {'good_vectors': [], 'failed_vectors': [], 'estimated_t': 0},
-                                           'withMinus': {'good_vectors': [], 'failed_vectors': [], 'estimated_t': 0}})
+    comparison_data = defaultdict(lambda: {'t1': {'good_vectors': [], 'failed_vectors': [], 'estimated_t': 0},
+                                           'tt': {'good_vectors': [], 'failed_vectors': [], 'estimated_t': 0}})
 
     # Process each file in the folder
     for filename in os.listdir(subfolder_path):
@@ -80,30 +82,30 @@ def plot_withMinus_vs_standardLee(subfolder_path):
                 continue
 
             good_vectors, failed_vectors = read_vectors_from_csv(file_path)
-            key = (n, k, q)
+            key = (n, k, q, estimated_t)
 
             comparison_data[key][variant]['good_vectors'].extend(good_vectors)
             comparison_data[key][variant]['failed_vectors'].extend(failed_vectors)
             comparison_data[key][variant]['estimated_t'] = estimated_t
 
     # Plot performance for each unique (n, q) combination
-    for (n, k, q), data in comparison_data.items():
+    for (n, k, q, estimated_t), data in comparison_data.items():
         plt.figure(figsize=(12, 8))
 
         # Calculate percentages for each variant
-        standardLee_percentages = calculate_percentages(data['standardLee']['good_vectors'], data['standardLee']['failed_vectors'], q)
-        withMinus_percentages = calculate_percentages(data['withMinus']['good_vectors'], data['withMinus']['failed_vectors'], q)
+        t1 = calculate_percentages(data['t1']['good_vectors'], data['t1']['failed_vectors'], q)
+        tt = calculate_percentages(data['tt']['good_vectors'], data['tt']['failed_vectors'], q)
 
         # Plot each variant
-        plt.scatter(list(standardLee_percentages.keys()), list(standardLee_percentages.values()), 
-                    label="Standard Lee", color='green', alpha=0.75, edgecolor='black', s=100)
-        
-        plt.scatter(list(withMinus_percentages.keys()), list(withMinus_percentages.values()), 
-                    label="WithMinus", color='red', alpha=0.75, edgecolor='black', s=100)
+        plt.plot(list(t1.keys()), list(t1.values()), 
+                label="$\mu = 1$", color='green', alpha=0.75, linewidth=2, marker='o', markersize=6)
+
+        plt.plot(list(tt.keys()), list(tt.values()), 
+                label="$\mu = \mathrm{lee\_weight(error\_vector)}$", color='red', alpha=0.75, linewidth=2, marker='o', markersize=6)
 
         plt.xlabel('Lee Weight', fontsize=14)
         plt.ylabel('Successfully Decoded (%)', fontsize=14)
-        plt.title(f'Decoding Performance: Standard Lee vs WithMinus (n={n}, q={q})', fontsize=16, weight='bold')
+        plt.title(f'Decoding Performance with different $\mu$ (n={n}, p={q}, t={estimated_t})', fontsize=16, weight='bold')
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
         plt.grid(True, linestyle='--', alpha=0.7)
@@ -111,7 +113,7 @@ def plot_withMinus_vs_standardLee(subfolder_path):
         plt.tight_layout()
 
         # Save the plot
-        output_dir = './figs/t1vstt'
+        output_dir = './figs/t1vst'
         os.makedirs(output_dir, exist_ok=True)
         plt.savefig(os.path.join(output_dir, f'performance_n{n}_q{q}.png'))
         plt.close()
@@ -127,7 +129,7 @@ def main(subfolder_path):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python3 plot_withMinus_vs_standardLee.py <subfolder_path>")
+        print("Usage: python3 4t1vstt_plot.py ./data/decoding_t1vst/")
         sys.exit(1)
 
     subfolder_path = sys.argv[1]

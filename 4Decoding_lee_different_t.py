@@ -141,11 +141,15 @@ and finally tries to solve the shortest vector problem to find the error vector 
 
 returns the error vector (hopefully)
 """
-def solve(G, target_vector,q, error_vector, metric):
+def solve(G, target_vector,q, error_vector, metric, custom_t=None):
     n = len(target_vector)
     lattice = transform_to_lattice(G,n,q)
 
-    t = lee_weight(error_vector, q)
+    if custom_t is None:
+        t = lee_weight(error_vector, q)
+    else:
+        t = custom_t
+
     lattice = kannan_embedding(lattice, target_vector, t,q)
 
     result_vectors = matrix(ZZ, lattice).BKZ()
@@ -192,7 +196,7 @@ Simulate different parameters for the linear code and codeword
 
 :return: SimulationStats, a dataclass containing the statistics of the simulation
 """
-def simulate_code(G, code_word, q, error_vectors, metric, verbose: bool = False):
+def simulate_code(G, code_word, q, error_vectors, metric, custom_t=None, verbose: bool = False):
 
     if metric not in {"l2", "lee", "l1"}:
         raise ValueError("Metric must be one of 'l2', 'lee', 'l1'")
@@ -209,7 +213,7 @@ def simulate_code(G, code_word, q, error_vectors, metric, verbose: bool = False)
     for error_vector in error_vectors:
 
         received_word = (code_word + vector(GF(q),error_vector)) % q # not sure if i shouuld take the modulo here
-        decoded_error_vector = solve(G, received_word, q, error_vector=error_vector, metric=metric)
+        decoded_error_vector = solve(G, received_word, q, error_vector=error_vector, metric=metric, custom_t=custom_t)
 
         # modulize both vectors
         decoded_error_vector_test = [component % q for component in decoded_error_vector]
@@ -266,7 +270,6 @@ def write_to_csv(sub_dir, n, k, q, good_vectors, failed_vectors, estimated_t, me
 
 def do_simulation(q, n, k,  sub_dir):
     error_vectors_lee = get_error_vectors_lee(n, q, 500)
-    error_vectors_lee_modulo = [tuple(component % q for component in vector) for vector in error_vectors_lee]
 
     random_code = codes.random_linear_code(GF(q), n, k)
     G = random_code.generator_matrix()
@@ -279,9 +282,14 @@ def do_simulation(q, n, k,  sub_dir):
     random_message = vector(GF(q), [random.randint(0, q-1) for _ in range(k)])
     codeword = random_message * G
 
-    good_vectors_lee, failed_vectors_lee = simulate_code(G, codeword, q=q, error_vectors=[sublist[:] for sublist in error_vectors_lee], metric="lee", verbose=True)
-    write_to_csv(sub_dir, n, k, q, good_vectors_lee, failed_vectors_lee, t_lee, metric="lee", appendix="withMinus")
 
+    good_vectors_t1, failed_vectors_t1 = simulate_code(G, codeword, q=q, error_vectors=[sublist[:] for sublist in error_vectors_lee], metric="lee", custom_t=1, verbose=True)
+    write_to_csv(sub_dir, n, k, q, good_vectors_t1, failed_vectors_t1, t_lee, metric="lee", appendix="t1")
+
+    good_vectors_lee, failed_vectors_lee = simulate_code(G, codeword, q=q, error_vectors=[sublist[:] for sublist in error_vectors_lee], metric="lee", custom_t=None, verbose=True)
+    write_to_csv(sub_dir, n, k, q, good_vectors_lee, failed_vectors_lee, t_lee, metric="lee", appendix="tt")
+
+    
 
 primes = [5,17,101]   
 n = [10,20, 30, 40, 50, 100]
@@ -289,8 +297,8 @@ k = [5,10, 15, 20, 25, 50]
 
 current = 0
 
-for prime in primes:
-    for i in range(len(n)):
+for i in range(len(n)):
+    for prime in primes:
         current += 1
         print(f"Simulation: {current} / {len(n) * len(primes)}", flush=True)
-        do_simulation(prime, n[i], k[i], "decoding_tist")
+        do_simulation(prime, n[i], k[i], "decoding_t1vst2")

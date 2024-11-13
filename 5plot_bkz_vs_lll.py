@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
+plt.style.use("seaborn-v0_8-whitegrid")
 
 def calculate_percentages(good_vectors, failed_vectors, q):
     def lee_distance(vector, q):
@@ -31,9 +32,8 @@ def calculate_percentages(good_vectors, failed_vectors, q):
 
     return lee_percentages
 
-
 def extract_info_from_filename(filename):
-    match = re.match(r"result_n(\d+)_k(\d+)_q(\d+)_estimated_t(\d+)_lee_(modulized|withMinus)\.csv", filename)
+    match = re.match(r"result_n(\d+)_k(\d+)_q(\d+)_estimated_t(\d+)_lee_(bkz|lll)\.csv", filename)
     if match:
         n = int(match.group(1))
         k = int(match.group(2))
@@ -43,7 +43,6 @@ def extract_info_from_filename(filename):
         return n, k, q, estimated_t, variant
     else:
         raise ValueError("Filename does not match the expected pattern.")
-
 
 def read_vectors_from_csv(file_path):
     good_vectors = []
@@ -63,10 +62,9 @@ def read_vectors_from_csv(file_path):
                 failed_vectors.append(vector)
     return good_vectors, failed_vectors
 
-
-def plot_withMinus_vs_modulized(subfolder_path):
-    comparison_data = defaultdict(lambda: {'modulized': {'good_vectors': [], 'failed_vectors': [], 'estimated_t': 0},
-                                           'withMinus': {'good_vectors': [], 'failed_vectors': [], 'estimated_t': 0}})
+def plot_lee_metric_performance(subfolder_path):
+    comparison_data = defaultdict(lambda: {'bkz': {'good_vectors': [], 'failed_vectors': [], 'estimated_t': 0},
+                                           'lll': {'good_vectors': [], 'failed_vectors': [], 'estimated_t': 0}})
 
     # Process each file in the folder
     for filename in os.listdir(subfolder_path):
@@ -80,32 +78,31 @@ def plot_withMinus_vs_modulized(subfolder_path):
                 continue
 
             good_vectors, failed_vectors = read_vectors_from_csv(file_path)
-            key = (n, k, q)
+            key = (n, k, q, estimated_t)
 
             comparison_data[key][variant]['good_vectors'].extend(good_vectors)
             comparison_data[key][variant]['failed_vectors'].extend(failed_vectors)
             comparison_data[key][variant]['estimated_t'] = estimated_t
 
-    # Plot performance for each unique (n, q) combination
-    for (n, k, q), data in comparison_data.items():
+    # Plot performance for each unique (n, k, q) combination
+    for (n, k, q, estimated_t), data in comparison_data.items():
         plt.figure(figsize=(12, 8))
 
         # Calculate percentages for each variant
-        modulized_percentages = calculate_percentages(data['modulized']['good_vectors'], data['modulized']['failed_vectors'], q)
-        withMinus_percentages = calculate_percentages(data['withMinus']['good_vectors'], data['withMinus']['failed_vectors'], q)
+        bkz_percentages = calculate_percentages(data['bkz']['good_vectors'], data['bkz']['failed_vectors'], q)
+        lll_percentages = calculate_percentages(data['lll']['good_vectors'], data['lll']['failed_vectors'], q)
 
-        print("with minuds",modulized_percentages)
-        print(withMinus_percentages)
-        # Plot each variant
-        plt.scatter(list(modulized_percentages.keys()), list(modulized_percentages.values()), 
-                    label="Modulized", color='blue', alpha=0.75, edgecolor='black', s=100)
-        
-        plt.scatter(list(withMinus_percentages.keys()), list(withMinus_percentages.values()), 
-                    label="WithMinus", color='red', alpha=0.75, edgecolor='black', s=100)
+        # Plot BKZ data
+        plt.plot(list(bkz_percentages.keys()), list(bkz_percentages.values()), 
+                 label="BKZ", color='blue', alpha=0.75, linewidth=2, marker='o', markersize=6)
+
+        # Plot LLL data
+        plt.plot(list(lll_percentages.keys()), list(lll_percentages.values()), 
+                 label="LLL", color='red', alpha=0.75, linewidth=2, marker='o', markersize=6)
 
         plt.xlabel('Lee Weight', fontsize=14)
         plt.ylabel('Successfully Decoded (%)', fontsize=14)
-        plt.title(f'Decoding Performance: Modulized vs WithMinus (n={n}, q={q})', fontsize=16, weight='bold')
+        plt.title(f'Decoding Performance (LLL vs BKZ) in Lee Metric (n={n}, k={k}, p={q}, t={estimated_t})', fontsize=16, weight='bold')
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
         plt.grid(True, linestyle='--', alpha=0.7)
@@ -113,23 +110,21 @@ def plot_withMinus_vs_modulized(subfolder_path):
         plt.tight_layout()
 
         # Save the plot
-        output_dir = './figs/withMinus_vs_modulized'
+        output_dir = './figs/bkz_vs_lll'
         os.makedirs(output_dir, exist_ok=True)
-        plt.savefig(os.path.join(output_dir, f'performance_n{n}_q{q}.png'))
+        plt.savefig(os.path.join(output_dir, f'performance_n{n}_k{k}_p{q}.png'))
         plt.close()
-
 
 def main(subfolder_path):
     if not os.path.isdir(subfolder_path):
         print(f"Error: {subfolder_path} is not a valid directory.")
         sys.exit(1)
 
-    plot_withMinus_vs_modulized(subfolder_path)
-
+    plot_lee_metric_performance(subfolder_path)
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python3 plot_withMinus_vs_modulized.py <subfolder_path>")
+        print("Usage: python3 5plot_bkz_vs_lll.py ./data/bkz_vs_lll/")
         sys.exit(1)
 
     subfolder_path = sys.argv[1]

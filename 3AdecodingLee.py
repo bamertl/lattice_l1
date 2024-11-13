@@ -294,8 +294,8 @@ k = [5,10, 15, 20, 25, 50]
 
 current = 0
 
-for prime in primes:
-    for i in range(len(n)):
+for i in range(len(n)):
+    for prime in primes:
         current += 1
         print(f"Simulation: {current} / {len(n) * len(primes)}", flush=True)
-        do_simulation(prime, n[i], k[i], "decoding_tis1")
+        do_simulation(prime, n[i], k[i], "decoding_tis12")

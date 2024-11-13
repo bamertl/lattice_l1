@@ -5,7 +5,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
-
+plt.style.use("seaborn-v0_8-whitegrid")
 
 def calculate_percentages(good_vectors, failed_vectors, q):
     def lee_distance(vector, q):
@@ -97,12 +97,12 @@ def plot_q_influence(subfolder_path):
 
         plt.xlabel('Lee Weight', fontsize=14)
         plt.ylabel('Successfully Decoded (%)', fontsize=14)
-        plt.title(f'Influence of q on Decoding Success Rate for {n_key}', fontsize=16, weight='bold')
+        plt.title(f'Influence of p on Decoding Success Rate for {n_key}', fontsize=16, weight='bold')
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
         plt.grid(True, linestyle='--', alpha=0.7)
         plt.legend(fontsize=12, loc='upper right')
-        plt.tight_layout()
+      
 
         output_dir = './figs/q_influence'
         os.makedirs(output_dir, exist_ok=True)
@@ -120,7 +120,7 @@ def main(subfolder_path):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python3 plot_q_influence.py <subfolder_path>")
+        print("Usage: python3 3BdecodingLee_plot.py ./data/decoding_tis1/")
         sys.exit(1)
 
     subfolder_path = sys.argv[1]
