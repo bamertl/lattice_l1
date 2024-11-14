@@ -28,3 +28,16 @@ for i in range(len(n_list)):
     n = n_list[i]
     k = k_list[i]
     run(n,k,q)
+
+
+
+
+if(abs(value) != 0):
+    a_sum = np.sum(A)
+    A[row,column] = abs(value)
+    a_sum_new = np.sum(A)
+    tolerance = 1e-15  
+    if abs(a_sum_new - a_sum) < tolerance:
+        failed_activities.append(abs(value))
+        print("no change", abs(value))
+        len_success.append((row, column))

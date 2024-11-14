@@ -103,10 +103,10 @@ def plot_withMinus_vs_standardLee(subfolder_path):
                 label="$\mu = 1$", color='green', alpha=0.75, linewidth=2, marker='o', markersize=6)
 
         plt.plot(list(tt.keys()), list(tt.values()), 
-                label="$\mu = \mathrm{lee\_weight(error\_vector)}$", color='red', alpha=0.75, linewidth=2, marker='o', markersize=6)
+                label="$\mu = wt_L(\mathbf{v}_{error})$", color='red', alpha=0.75, linewidth=2, marker='o', markersize=6)
 
         plt.plot(list(thalf.keys()), list(thalf.values()),
-                label="$\mu = \mathrm{lee\_weight(error\_vector)}/2$", color='blue', alpha=0.75, linewidth=2, marker='o', markersize=6)
+                label="$\mu = wt_L(\mathbf{v}_{error})//2$", color='blue', alpha=0.75, linewidth=2, marker='o', markersize=6)
 
         plt.xlabel('Lee Weight', fontsize=14)
         plt.ylabel('Successfully Decoded (%)', fontsize=14)
@@ -134,7 +134,7 @@ def main(subfolder_path):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python3 4t1vstt_plot.py ./data/decoding_tall/")
+        print("Usage: python3 4t1vstt_plot_new.py ./data/decoding_tall/")
         sys.exit(1)
 
     subfolder_path = sys.argv[1]

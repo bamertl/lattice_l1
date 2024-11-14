@@ -145,7 +145,12 @@ def solve(G, target_vector,q, error_vector, metric, custom_t=None):
     n = len(target_vector)
     lattice = transform_to_lattice(G,n,q)
 
-    t = lee_weight(error_vector, q) // 2
+    if custom_t == "t1":
+        t = 1
+    elif custom_t == "tt":
+        t = lee_weight(error_vector, q)
+    elif custom_t == "thalf":
+        t = lee_weight(error_vector, q) // 2
 
     if t < 1:
         t = 1
@@ -281,9 +286,14 @@ def do_simulation(q, n, k,  sub_dir):
     random_message = vector(GF(q), [random.randint(0, q-1) for _ in range(k)])
     codeword = random_message * G
 
+    good_vectors_t1, failed_vectors_t1 = simulate_code(G, codeword, q=q, error_vectors=[sublist[:] for sublist in error_vectors_lee], metric="lee", custom_t="t1", verbose=True)
+    write_to_csv(sub_dir, n, k, q, good_vectors_t1, failed_vectors_t1, t_lee, metric="lee", appendix="t1")
 
-    good_vectors_t1, failed_vectors_t1 = simulate_code(G, codeword, q=q, error_vectors=[sublist[:] for sublist in error_vectors_lee], metric="lee", custom_t=None, verbose=True)
-    write_to_csv(sub_dir, n, k, q, good_vectors_t1, failed_vectors_t1, t_lee, metric="lee", appendix="thalf")
+    good_vectors_lee, failed_vectors_lee = simulate_code(G, codeword, q=q, error_vectors=[sublist[:] for sublist in error_vectors_lee], metric="lee", custom_t="tt", verbose=True)
+    write_to_csv(sub_dir, n, k, q, good_vectors_lee, failed_vectors_lee, t_lee, metric="lee", appendix="tt")
+
+    good_vectors_thalf, failed_vectors_thalf = simulate_code(G, codeword, q=q, error_vectors=[sublist[:] for sublist in error_vectors_lee], metric="lee", custom_t="thalf", verbose=True)
+    write_to_csv(sub_dir, n, k, q, good_vectors_thalf, failed_vectors_thalf, t_lee, metric="lee", appendix="thalf")
 
 
     
@@ -298,4 +308,4 @@ for i in range(len(n)):
     for prime in primes:
         current += 1
         print(f"Simulation: {current} / {len(n) * len(primes)}", flush=True)
-        do_simulation(prime, n[i], k[i], "decoding_thalf")
+        do_simulation(prime, n[i], k[i], "decoding_tall")
