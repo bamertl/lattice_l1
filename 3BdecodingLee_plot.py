@@ -92,7 +92,7 @@ def plot_q_influence(subfolder_path):
         sorted_data = sorted(data.items(), key=lambda x: x[0])  # Sort by q values
         for q, vectors in sorted_data:
             lee_percentages = calculate_percentages(vectors['good_vectors'], vectors['failed_vectors'], q)
-            label = f"q={q}, t={vectors['estimated_t']}"
+            label = f"p={q}, t={vectors['estimated_t']}"
             plt.scatter(list(lee_percentages.keys()), list(lee_percentages.values()), label=label, s=100, alpha=0.75, edgecolor='black')
 
         plt.xlabel('Lee Weight', fontsize=14)

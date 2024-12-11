@@ -44,7 +44,7 @@ def plot_averages(averages, unit_label):
 
     plt.xlabel('n')
     plt.ylabel(f'Time ({unit_label})')
-    plt.title(f'{label} Timings',fontsize=16, weight='bold')
+    plt.title(f'Timings with {label} ',fontsize=16, weight='bold')
     plt.tight_layout()
     plt.legend()
     plt.grid(True)
